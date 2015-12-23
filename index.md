@@ -15,7 +15,7 @@ Rosa is an RDF and Ontology conStraints Analyzer implemented on top of Scala and
 
 If you are interested in extending or working directly with the code, you can also check out the master branch from Git.
 
-```brash
+```
 git clone https://github.com/emir-munoz/ROSA.git
 ```
 
@@ -37,7 +37,7 @@ In Spark 1.5.1
 
 ## Example output
 
-```bash
+```
 [INFO ] 2015-12-17 17:41:09.054 [main] (ProjectionOp$          ) - 3042916 RDF triples found in file 'experiments/dbpedia-careerstation/careerstation.nt.gz'
 [INFO ] 2015-12-17 17:41:09.056 [main] (ProjectionOp$          ) - 643162 different subjects found in file 'experiments/dbpedia-careerstation/careerstation.nt.gz'
 [INFO ] 2015-12-17 17:41:14.331 [main] (DiscoveryCard$         ) - Number of different subjects: 643162
