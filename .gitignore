@@ -7,7 +7,7 @@
 _site/
 
 # Files
-index.md~
+*~
 
 # Maven
 project/
