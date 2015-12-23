@@ -1,0 +1,17 @@
+# ignore files
+*.class
+*.log*
+*.old
+
+# scala-IDE specific
+.idea/
+.idea_modules/
+*.iml
+
+# maven/sbt specific
+.cache/
+.history/
+.lib/
+sbt/
+target/
+project/
