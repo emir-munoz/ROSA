@@ -22,6 +22,7 @@ git clone https://github.com/emir-munoz/ROSA.git
 ## Compiling from sources
 
 To generate a fat `.jar` with all dependencies,
+
 ```
 mvn package -DskipTests
 ```
@@ -31,6 +32,7 @@ mvn package -DskipTests
 To execute ROSA on top of Spark using multiple threads in a local machine
 
 In Spark 1.5.1
+
 ```
 ../../spark-1.5.1-bin-hadoop2.6/bin/spark-submit --driver-memory 6g --executor-memory 3g --class "spine.discovery.DiscoveryCard" --master local[2] target/rdf-spine-0.0.1-SNAPSHOT-jar-with-dependencies.jar 2 [[RDF_FILE]] [[RDF_CLASS]]
 ```
@@ -62,6 +64,7 @@ In Spark 1.5.1
 ## Spark options
 
 According to the hardware settings, i.e., single or multiple machines, it may be required to set the memory allocated to the driver and executor.
+
 ```
 --driver-memory 3g
 --executor-memory 3g
