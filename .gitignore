@@ -1,0 +1,16 @@
+# Idea
+
+.idea/
+.idea_modules/
+
+# Jekyll
+_site/
+
+# Files
+index.md~
+
+# Maven
+project/
+sbt/
+target/
+
