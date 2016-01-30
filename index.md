@@ -4,7 +4,7 @@ layout: index
 
 # Welcome to ROSA
 
-Rosa is an RDF and Ontology conStraints Analyzer implemented on top of Scala and Apache Spark.
+ROSA is an RDF and Ontology conStraints Analyzer implemented on top of Scala and Apache Spark.
 
 ## Pre-requisites
 
