@@ -65,4 +65,6 @@ According to the hardware settings, i.e., single or multiple machines, it may be
 
 ## Contact
 
-[Emir Munoz](http://emunoz.org)
+<i class="icon-envelope"></i> [Emir Munoz](http://emunoz.org)
+
+> Last update: 30 January 2016
