@@ -1,6 +1,6 @@
 # Welcome to ROSA
 
-Rosa is an RDF and Ontology conStraints Analyzer implemented on top of Scala and Apache Spark.
+Rosa is an **R**DF and **O**ntology con**S**traints **A**nalyzer implemented on top of Scala and Apache Spark.
 
 ## Pre-requisites
 
@@ -11,13 +11,14 @@ Rosa is an RDF and Ontology conStraints Analyzer implemented on top of Scala and
 
 If you are interested in extending or working directly with the code, you can also check out the master branch from Git.
 
-```brash
+```
 git clone https://github.com/emir-munoz/ROSA.git
 ```
 
 ## Compiling from sources
 
 To generate a fat `.jar` with all dependencies,
+
 ```
 mvn package -DskipTests
 ```
@@ -27,13 +28,14 @@ mvn package -DskipTests
 To execute ROSA on top of Spark using multiple threads in a local machine
 
 In Spark 1.5.1
+
 ```
 ../../spark-1.5.1-bin-hadoop2.6/bin/spark-submit --driver-memory 6g --executor-memory 3g --class "spine.discovery.DiscoveryCard" --master local[2] target/rdf-spine-0.0.1-SNAPSHOT-jar-with-dependencies.jar 2 [[RDF_FILE]] [[RDF_CLASS]]
 ```
 
 ## Example output
 
-```bash
+```
 [INFO ] 2015-12-17 17:41:09.054 [main] (ProjectionOp$          ) - 3042916 RDF triples found in file 'experiments/dbpedia-careerstation/careerstation.nt.gz'
 [INFO ] 2015-12-17 17:41:09.056 [main] (ProjectionOp$          ) - 643162 different subjects found in file 'experiments/dbpedia-careerstation/careerstation.nt.gz'
 [INFO ] 2015-12-17 17:41:14.331 [main] (DiscoveryCard$         ) - Number of different subjects: 643162
@@ -58,6 +60,7 @@ In Spark 1.5.1
 ## Spark options
 
 According to the hardware settings, i.e., single or multiple machines, it may be required to set the memory allocated to the driver and executor.
+
 ```
 --driver-memory 3g
 --executor-memory 3g
