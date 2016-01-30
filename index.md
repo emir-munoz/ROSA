@@ -15,7 +15,7 @@ Rosa is an RDF and Ontology conStraints Analyzer implemented on top of Scala and
 
 If you are interested in extending or working directly with the code, you can also check out the master branch from Git.
 
-```brash
+```bash
 git clone https://github.com/emir-munoz/ROSA.git
 ```
 
