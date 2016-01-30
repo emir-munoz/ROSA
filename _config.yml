@@ -7,11 +7,4 @@ author :
   name : Emir Munoz
   email : emir@emunoz.org
   github : emir-munoz
-  
-JB :
-  version : 0.3.0
-  analytics :
-    provider : google 
-    google : 
-       tracking_id : 'UA-48858636-1'
 
