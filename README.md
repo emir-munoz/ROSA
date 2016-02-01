@@ -68,6 +68,6 @@ According to the hardware settings, i.e., single or multiple machines, it may be
 
 ## Contact
 
-<i class="icon-envelope"></i> [Emir Munoz](http://emunoz.org)
+<i class="fa fa-envelope"></i> [Emir Munoz](http://emunoz.org)
 
 > Last update: 30 January 2016
