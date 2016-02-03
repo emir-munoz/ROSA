@@ -34,7 +34,7 @@ To execute ROSA on top of Spark using multiple threads in a local machine
 In Spark 1.5.1
 
 ```
-../../spark-1.5.1-bin-hadoop2.6/bin/spark-submit --driver-memory 6g --executor-memory 3g --class "spine.discovery.DiscoveryCard" --master local[2] target/rdf-spine-0.0.1-SNAPSHOT-jar-with-dependencies.jar 2 [[RDF_FILE]] [[RDF_CLASS]]
+spark-1.5.1-bin-hadoop2.6/bin/spark-submit --driver-memory 6g --executor-memory 3g --class "spine.discovery.DiscoveryCard" --master local[2] ROSA/target/rdf-spine-0.0.1-SNAPSHOT-jar-with-dependencies.jar 2 [[RDF_FILE]] [[RDF_CLASS]]
 ```
 
 ## Example output
