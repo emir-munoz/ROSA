@@ -1,5 +1,5 @@
 highlighter: pygments
-markdown: redcarpet
+markdown: kramdown
 path: http://emir-munoz.github.io/ROSA
 
 title : ROSA
