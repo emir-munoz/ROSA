@@ -1,4 +1,4 @@
-highlighter: pygments
+highlighter: rouge
 markdown: kramdown
 path: http://emir-munoz.github.io/ROSA
 
