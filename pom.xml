@@ -6,17 +6,17 @@
 
     <groupId>ie.fujitsu.data</groupId>
     <artifactId>rdf-spine</artifactId>
-    <version>0.0.1-SNAPSHOT</version>
+    <version>0.0.1</version>
     <packaging>jar</packaging>
 
     <name>${project.artifactId}</name>
     <description>Schema mining tool -- Sekitsui</description>
     <inceptionYear>2015</inceptionYear>
-    <url>http://spark.apache.org</url>
+    <url>https://github.com/emir-munoz/ROSA</url>
     <licenses>
         <license>
             <name>rdf-spine</name>
-            <url>http://....</url>
+            <url>https://github.com/emir-munoz/ROSA</url>
             <distribution>repo</distribution>
         </license>
     </licenses>
@@ -74,6 +74,13 @@
             <!--<scope>provided</scope>-->
         </dependency>
 
+        <!-- JCommander -->
+        <dependency>
+            <groupId>com.beust</groupId>
+            <artifactId>jcommander</artifactId>
+            <version>1.48</version>
+        </dependency>
+
         <!-- RDF -->
         <dependency>
             <groupId>org.semanticweb.yars</groupId>
@@ -121,6 +128,16 @@
             <artifactId>sesame-rio-turtle</artifactId>
             <version>${sesame.version}</version>
         </dependency>
+        <dependency>
+            <groupId>org.openrdf.sesame</groupId>
+            <artifactId>sesame-repository-sail</artifactId>
+            <version>${sesame.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.openrdf.sesame</groupId>
+            <artifactId>sesame-sail-memory</artifactId>
+            <version>${sesame.version}</version>
+        </dependency>
 
         <!-- Test -->
         <dependency>
@@ -136,33 +153,22 @@
             <artifactId>guava</artifactId>
             <version>${guava.version}</version>
         </dependency>
+        <!-- Logging Dependencies -->
         <dependency>
-            <groupId>org.apache.logging.log4j</groupId>
-            <artifactId>log4j-api</artifactId>
-            <version>${log4j.version}</version>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-api</artifactId>
+            <version>1.7.5</version>
         </dependency>
         <dependency>
-            <groupId>org.apache.logging.log4j</groupId>
-            <artifactId>log4j-core</artifactId>
-            <version>${log4j.version}</version>
+            <groupId>ch.qos.logback</groupId>
+            <artifactId>logback-classic</artifactId>
+            <version>1.0.13</version>
         </dependency>
-        <!-- Route all Log4j 1.x dependencies to Log4j 2 -->
         <dependency>
-            <groupId>org.apache.logging.log4j</groupId>
-            <artifactId>log4j-1.2-api</artifactId>
-            <version>${log4j.version}</version>
-            <exclusions>
-                <exclusion>
-                    <groupId>org.apache.logging.log4j</groupId>
-                    <artifactId>log4j-api</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>org.apache.logging.log4j</groupId>
-                    <artifactId>log4j-core</artifactId>
-                </exclusion>
-            </exclusions>
+            <groupId>org.slf4j</groupId>
+            <artifactId>log4j-over-slf4j</artifactId>
+            <version>1.7.12</version>
         </dependency>
-
     </dependencies>
 
     <build>
