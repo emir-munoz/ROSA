@@ -15,3 +15,7 @@
 sbt/
 target/
 project/
+
+# development
+/src/main/scala/examples
+/src/main/scala/mllib
