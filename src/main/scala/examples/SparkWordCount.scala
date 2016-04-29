@@ -1,24 +1,16 @@
 package examples
 
-import org.apache.logging.log4j.LogManager
 import org.apache.spark.{SparkConf, SparkContext}
+import org.slf4j.LoggerFactory
 
 /**
- * Scala word count using Spark.
- *
- * Created by Emir Munoz on 29/01/15.
- */
+  * Scala word count using Spark.
+  *
+  * Created by Emir Munoz on 29/01/15.
+  */
 object SparkWordCount {
 
-  val _log = LogManager.getLogger(SparkWordCount.getClass.getSimpleName);
-
-  def sanitizeString(s: String): String = {
-    val sTmp: String = s.replaceAll("[^a-zA-Z ]", "").toLowerCase.trim
-    if (sTmp.length() > 0)
-      sTmp
-    else
-      None.toString
-  }
+  val _log = LoggerFactory.getLogger(SparkWordCount.getClass.getSimpleName);
 
   def main(args: Array[String]) {
 
@@ -34,7 +26,7 @@ object SparkWordCount {
     val tokenized = sc.textFile(args(0)).flatMap(_.split(" "))
 
     // filter by cleansing punctuations
-    val tokenizedFiltered = tokenized collect { case s: String if (sanitizeString(s) != None.toString) => sanitizeString(s)}
+    val tokenizedFiltered = tokenized collect { case s: String if (sanitizeString(s) != None.toString) => sanitizeString(s) }
     //val tokenizedFiltered = tokenized.map(term => sanitizeString(term))
 
     // count the occurrence of each word
@@ -50,6 +42,14 @@ object SparkWordCount {
     //println(charCounts.collect().mkString(", "))
 
     sc.stop()
+  }
+
+  def sanitizeString(s: String): String = {
+    val sTmp: String = s.replaceAll("[^a-zA-Z ]", "").toLowerCase.trim
+    if (sTmp.length() > 0)
+      sTmp
+    else
+      None.toString
   }
 
 }

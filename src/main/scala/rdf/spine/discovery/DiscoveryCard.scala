@@ -3,7 +3,7 @@ package rdf.spine.discovery
 import org.apache.spark.{SparkConf, SparkContext}
 import org.openrdf.rio.RDFFormat
 import org.slf4j.LoggerFactory
-import spine.model.CardCandidate
+import rdf.spine.model.CardCandidate
 import spine.parser.CardinalityConstraint
 
 /**

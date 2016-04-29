@@ -1,15 +1,15 @@
 package examples
 
-import org.apache.logging.log4j.LogManager
 import org.apache.spark.{SparkConf, SparkContext}
+import org.slf4j.LoggerFactory
 
 /**
- * @author Emir Munoz
- * @since 27/01/15
- */
+  * @author Emir Munoz
+  * @since 27/01/15
+  */
 object SimpleApp {
 
-  private val _log = LogManager.getLogger(SimpleApp.getClass.getSimpleName)
+  private val _log = LoggerFactory.getLogger(SimpleApp.getClass.getSimpleName)
 
   def main(args: Array[String]) {
     val logFile = "/home/emir/work/spark-1.4.0/README.md"
@@ -25,4 +25,5 @@ object SimpleApp {
 
     sc.stop()
   }
+
 }
