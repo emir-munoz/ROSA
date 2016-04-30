@@ -1,6 +1,6 @@
 package rdf.spine.discovery
 
-import spine.model.Projection
+import rdf.spine.model.Projection
 
 /**
   * JOIN Operator implementation.
@@ -12,11 +12,12 @@ object JoinOp {
 
   /**
     * Join operator between two projections.
-    * @param left A projection.
+    *
+    * @param left  A projection.
     * @param right A projection.
     * @return A join of the given projections.
     */
-  def join(left: Projection, right: Projection) : Seq[Projection] = {
+  def join(left: Projection, right: Projection): Seq[Projection] = {
     val res: Array[Projection] = Array()
 
     val intersection = left.properties intersect right.properties
@@ -41,23 +42,25 @@ object JoinOp {
 
   /**
     * Specific Join operator for two projections with the same set of properties.
-    * @param left A projection.
+    *
+    * @param left  A projection.
     * @param right A projection.
     * @return A join of the given projections.
     */
-  def joinSingle(left: Projection, right: Projection) : Projection = {
+  def joinSingle(left: Projection, right: Projection): Projection = {
 
     //println(left + " **JOIN** " + right)
 
     val intersection = left.properties intersect right.properties
-    val leftBigger = left.properties diff intersection
-    val rightBigger = right.properties diff intersection
+    // val leftBigger = left.properties diff intersection
+    // val rightBigger = right.properties diff intersection
 
     if (intersection nonEmpty) {
-      //println("Intersection non empty: " + intersection)
+      //println("Intersection is non empty: " + intersection)
       return new Projection(left.freq union right.freq, left.subjects union right.subjects, left.properties union right.properties)
     }
-    null // should never arrive to this point!!
+
+    null // different set of properties
   }
 
 }

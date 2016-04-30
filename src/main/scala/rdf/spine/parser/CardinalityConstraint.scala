@@ -1,7 +1,7 @@
 package rdf.spine.parser
 
 import org.openrdf.model.Statement
-import spine.model.Projection
+import rdf.spine.model.Projection
 
 import scala.collection.mutable
 
@@ -11,7 +11,7 @@ import scala.collection.mutable
   * @author Emir Munoz
   * @since 09/10/15.
   */
-class CardinalityConstraint extends Constraint {
+class CardinalityConstraint extends ConstraintParser {
 
   var transactions = mutable.Map[String, mutable.Map[String, Int]]()
   var statementsCount = 0

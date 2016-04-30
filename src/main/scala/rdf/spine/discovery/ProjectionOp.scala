@@ -9,8 +9,8 @@ import org.openrdf.rio.ntriples.NTriplesParser
 import org.openrdf.rio.turtle.TurtleParser
 import org.openrdf.rio.{RDFFormat, RDFParser}
 import org.slf4j.LoggerFactory
-import spine.model.Projection
-import spine.parser.Constraint
+import rdf.spine.model.Projection
+import rdf.spine.parser.ConstraintParser
 
 import scala.collection.mutable
 
@@ -19,7 +19,7 @@ import scala.collection.mutable
   *
   * @author Emir Munoz
   * @since 08/10/15.
-  * @version 0.0.1
+  * @version 0.0.2
   */
 object ProjectionOp {
 
@@ -27,15 +27,16 @@ object ProjectionOp {
   var numSubjects = 0
 
   /**
+    * Extract projections from a given RDF file.
     *
     * @param filename Path to the RDF file.
     * @param format   Format of the RDF triples.
     * @param handler  Handler for the parser.
     * @return Sequence of properties and frequencies per subject.
     */
-  //Seq[Array[String]]
-  //mutable.Map[String, mutable.Map[String, Int]]
-  def getProjections(filename: String, format: RDFFormat, handler: Constraint): Seq[Projection] = {
+  def getProjections(filename: String, format: RDFFormat, handler: ConstraintParser): Seq[Projection] = {
+    _log.info(s"Processing dataset file '$filename'")
+    _log.info("Loading RDF statements in memory ...")
     var decoder: Reader = null
     filename.substring(filename.lastIndexOf(".")) match {
       case ".nt" => decoder = new FileReader(filename)
@@ -59,14 +60,20 @@ object ProjectionOp {
     parser.getParserConfig.addNonFatalError(BasicParserSettings.VERIFY_DATATYPE_VALUES)
     parser.parse(decoder, "")
 
-    _log.info(s"${handler.countStatements} RDF triples found in file '$filename'")
-    _log.info(s"${handler.countResources} different subjects found in file '$filename'")
+    _log.info(s"${handler.countStatements} RDF triples found in dataset")
+    _log.info(s"${handler.countResources} different subjects found in dataset")
 
     numSubjects = handler.countResources
 
     handler.getTransactions
   }
 
+  /**
+    * Break coarse projections into small projections with single predicate.
+    *
+    * @param proj Coarse projection.
+    * @return Fine projection.
+    */
   def breakProjection(proj: Projection): Seq[(String, Projection)] = {
     val res = mutable.Map[String, Projection]()
     proj.properties.foreach { prop =>
@@ -74,19 +81,18 @@ object ProjectionOp {
       //res.add(new Projection(proj.freq, proj.subjects, Set(prop)))
     }
 
-    //println(res.mkString(";"))
-
     res.toSeq
   }
 
+  /**
+    * @return Number of subjects in dataset.
+    */
   def getNumSubjects: Int = {
     numSubjects
   }
 
   /**
-    * For testing purposes.
-    *
-    * @return
+    * @return Sample transactions for testing purposes.
     */
   def getSampleTransactions: Seq[Array[String]] = {
     val transactions = Seq(

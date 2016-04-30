@@ -1,5 +1,5 @@
 /**
-  * @author emir
+  * @author Emir Munoz
   * @since 16/12/15.
   */
 object ReverseMapTest {

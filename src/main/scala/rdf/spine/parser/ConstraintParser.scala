@@ -1,7 +1,7 @@
 package rdf.spine.parser
 
 import org.openrdf.rio.helpers.AbstractRDFHandler
-import spine.model.Projection
+import rdf.spine.model.Projection
 
 /**
   * Trait to be respected by all constraints.
@@ -9,7 +9,7 @@ import spine.model.Projection
   * @author Emir Munoz
   * @since 28/10/15.
   */
-trait Constraint extends AbstractRDFHandler {
+trait ConstraintParser extends AbstractRDFHandler {
 
   /**
     * @return All transactions found in the database.
