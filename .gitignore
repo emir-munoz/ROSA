@@ -2,6 +2,7 @@
 *.class
 *.log*
 *.old
+/logs
 
 # scala-IDE specific
 .idea/
@@ -18,4 +19,6 @@ project/
 
 # development
 /src/main/scala/examples
+/src/main/scala/rdf/spine/conf
 /src/main/scala/mllib
+/src/main/scala/rdf/spine/parser/RangeTypeConstraint.scala

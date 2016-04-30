@@ -6,7 +6,7 @@
 
     <groupId>ie.fujitsu.data</groupId>
     <artifactId>rdf-spine</artifactId>
-    <version>0.0.1</version>
+    <version>0.1.0</version>
     <packaging>jar</packaging>
 
     <name>${project.artifactId}</name>
@@ -32,13 +32,14 @@
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-        <java.version>1.8</java.version>
+        <maven.compiler.source>1.8</maven.compiler.source>
+        <maven.compiler.target>1.8</maven.compiler.target>
         <junit.version>4.11</junit.version>
         <scala.version>2.11.5</scala.version>
         <spark.version>1.5.1</spark.version>
         <log4j.version>2.3</log4j.version>
         <guava.version>18.0</guava.version>
-        <sesame.version>4.0.0-RC1</sesame.version>
+        <sesame.version>4.1.1</sesame.version>
     </properties>
 
     <dependencies>
@@ -48,12 +49,6 @@
             <artifactId>scala-library</artifactId>
             <version>${scala.version}</version>
         </dependency>
-        <dependency>
-            <groupId>com.github.scopt</groupId>
-            <artifactId>scopt_2.11</artifactId>
-            <version>3.3.0</version>
-        </dependency>
-
         <!-- Apache Spark -->
         <dependency>
             <groupId>org.apache.spark</groupId>
@@ -73,41 +68,13 @@
             <version>${spark.version}</version>
             <!--<scope>provided</scope>-->
         </dependency>
-
         <!-- JCommander -->
         <dependency>
             <groupId>com.beust</groupId>
             <artifactId>jcommander</artifactId>
             <version>1.48</version>
         </dependency>
-
         <!-- RDF -->
-        <dependency>
-            <groupId>org.semanticweb.yars</groupId>
-            <artifactId>nxparser-api</artifactId>
-            <version>2.2</version>
-        </dependency>
-        <dependency>
-            <groupId>org.semanticweb.yars</groupId>
-            <artifactId>nxparser-commons</artifactId>
-            <version>2.2</version>
-        </dependency>
-        <dependency>
-            <groupId>org.semanticweb.yars</groupId>
-            <artifactId>nxparser-parsers</artifactId>
-            <version>2.2</version>
-        </dependency>
-        <dependency>
-            <groupId>org.semanticweb.yars</groupId>
-            <artifactId>nxparser-model</artifactId>
-            <version>2.2</version>
-        </dependency>
-        <dependency>
-            <groupId>org.semanticweb.yars</groupId>
-            <artifactId>nxparser-model-datatypes</artifactId>
-            <version>2.2</version>
-        </dependency>
-        <!-- Sesame -->
         <dependency>
             <groupId>org.openrdf.sesame</groupId>
             <artifactId>sesame-rio-api</artifactId>
@@ -135,10 +102,14 @@
         </dependency>
         <dependency>
             <groupId>org.openrdf.sesame</groupId>
+            <artifactId>sesame-repository-sparql</artifactId>
+            <version>${sesame.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.openrdf.sesame</groupId>
             <artifactId>sesame-sail-memory</artifactId>
             <version>${sesame.version}</version>
         </dependency>
-
         <!-- Test -->
         <dependency>
             <groupId>junit</groupId>
@@ -146,7 +117,6 @@
             <version>${junit.version}</version>
             <scope>test</scope>
         </dependency>
-
         <!-- General Utils -->
         <dependency>
             <groupId>com.google.guava</groupId>
@@ -184,8 +154,8 @@
                     <artifactId>maven-compiler-plugin</artifactId>
                     <version>3.3</version>
                     <configuration>
-                        <source>${java.version}</source>
-                        <target>${java.version}</target>
+                        <source>${maven.compiler.source}</source>
+                        <target>${maven.compiler.target}</target>
                         <encoding>UTF-8</encoding>
                         <maxmem>1024m</maxmem>
                         <fork>true</fork>
@@ -210,12 +180,21 @@
 
             <!-- Plugin to create a single jar that includes all dependencies -->
             <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-assembly-plugin</artifactId>
                 <version>2.4</version>
                 <configuration>
                     <descriptorRefs>
                         <descriptorRef>jar-with-dependencies</descriptorRef>
                     </descriptorRefs>
+                    <archive>
+                        <manifest>
+                            <mainClass>rdf.spine.Rosa</mainClass>
+                        </manifest>
+                    </archive>
+                    <!--<descriptors>-->
+                    <!--<descriptor>assembly.xml</descriptor>-->
+                    <!--</descriptors>-->
                 </configuration>
                 <executions>
                     <execution>

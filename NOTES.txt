@@ -1,0 +1,1 @@
+emir@galway:/media/sf_projects/spine-ldd/ROSA$ java -Xmx2g -jar target/rdf-spine-0.1.0-jar-with-dependencies.jar -baseline  -file /media/sf_projects/spine-ldd/ShEx/shexcala-0.5.8/experiments/dbpedia-musicalWork/musicalWork.nt.gz -context http://dbpedia.org/ontology/MusicalWork
