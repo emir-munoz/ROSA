@@ -22,3 +22,6 @@ project/
 /src/main/scala/rdf/spine/conf
 /src/main/scala/mllib
 /src/main/scala/rdf/spine/parser/RangeTypeConstraint.scala
+
+# data
+rdf/
