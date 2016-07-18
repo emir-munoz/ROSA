@@ -1,25 +1,22 @@
-package rdf.spine.dao;
+package org.rosa.discovery;
 
 import com.google.common.collect.Lists;
-import org.openrdf.OpenRDFException;
-import org.openrdf.model.*;
-import org.openrdf.query.BindingSet;
-import org.openrdf.query.QueryLanguage;
-import org.openrdf.query.TupleQuery;
-import org.openrdf.query.TupleQueryResult;
-import org.openrdf.repository.Repository;
-import org.openrdf.repository.RepositoryConnection;
-import org.openrdf.repository.sail.SailRepository;
-import org.openrdf.rio.RDFFormat;
-import org.openrdf.sail.memory.MemoryStore;
+import org.eclipse.rdf4j.model.Value;
+import org.eclipse.rdf4j.query.BindingSet;
+import org.eclipse.rdf4j.query.QueryLanguage;
+import org.eclipse.rdf4j.query.TupleQuery;
+import org.eclipse.rdf4j.query.TupleQueryResult;
+import org.eclipse.rdf4j.repository.Repository;
+import org.eclipse.rdf4j.repository.RepositoryConnection;
+import org.eclipse.rdf4j.rio.RDFFormat;
+import org.rosa.rdf.RDFUtil;
+import org.rosa.util.MemoryUtils;
+import org.rosa.util.TimeWatch;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import rdf.spine.util.MemoryUtils;
-import rdf.spine.util.TimeWatch;
 
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.io.IOException;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
@@ -27,8 +24,8 @@ import java.util.concurrent.TimeUnit;
  * Baseline implementation using SPARQL queries.
  *
  * @author Emir Munoz
- * @version 0.0.1
- * @since 28/04/16.
+ * @version 0.0.2
+ * @since 28/04/2016
  */
 public class DiscoveryCardSparql {
 
@@ -38,10 +35,10 @@ public class DiscoveryCardSparql {
     /**
      * Main method.
      */
-    public static void main(String[] args) {
+    public static void main(String... args) {
         DiscoveryCardSparql card = new DiscoveryCardSparql();
         try {
-            card.runDiscovery("/media/sf_projects/spine-ldd/ShEx/shexcala-0.5.8/experiments/dbpedia-personFunction/personFunction.nt.gz",
+            card.runDiscovery("/media/sf_projects/rosa-ldd/ShEx/shexcala-0.5.8/experiments/dbpedia-personFunction/personFunction.nt.gz",
                     "http://dbpedia.org/ontology/PersonFunction");
         } catch (FileNotFoundException e) {
             _log.error(e.getMessage());
@@ -50,6 +47,10 @@ public class DiscoveryCardSparql {
 
     /**
      * Execute discovery method.
+     *
+     * @param filename     Path to RDF file.
+     * @param constContext Context of the constraint (i.e., a class)
+     * @throws FileNotFoundException
      */
     public void runDiscovery(final String filename, final String constContext) throws FileNotFoundException {
         _log.info("Starting discovery of cardinality constraints from RDF data");
@@ -58,10 +59,7 @@ public class DiscoveryCardSparql {
         } else {
             _log.info("Context is not specified");
         }
-
-        Repository repository = new SailRepository(new MemoryStore());
-        repository.initialize();
-
+        Repository repository = RDFUtil.connectToMemoryRepository();
         // Loading statements from a file
         File file = new File(filename);
         if (!file.exists()) {
@@ -70,7 +68,7 @@ public class DiscoveryCardSparql {
         String baseURI = "http://example.org/example/local";
 
         MemoryUtils.printMemoryInfo();
-        loadRDFFromFile(file, repository, baseURI, RDFFormat.NTRIPLES);
+        RDFUtil.loadRDFFromFile(file, RDFFormat.NTRIPLES, baseURI, repository);
         MemoryUtils.printMemoryInfo();
 
         // start counting execution time
@@ -89,50 +87,6 @@ public class DiscoveryCardSparql {
     }
 
     /**
-     * Load test triples into repository.
-     *
-     * @param repository Sesame repository.
-     */
-    private void loadRDFTest(final Repository repository) {
-        ValueFactory factory = repository.getValueFactory();
-
-        IRI bob = factory.createIRI("http://example.org/bob");
-        IRI name = factory.createIRI("http://example.org/name");
-        Literal bobsName = factory.createLiteral("Bob");
-        Statement nameStatement = factory.createStatement(bob, name, bobsName);
-
-        // Loading statements programmatically
-        try (RepositoryConnection conn = repository.getConnection()) {
-            conn.begin();
-            conn.add(nameStatement);
-            conn.commit();
-        }
-    }
-
-    /**
-     * Load an RDF file into the repository.
-     *
-     * @param file       RDF file descriptor.
-     * @param repository Sesame repository.
-     * @param baseURI    Base URI.
-     * @param format     RDF format.
-     */
-    private void loadRDFFromFile(final File file, final Repository repository, final String baseURI, RDFFormat format) {
-        _log.info("Processing dataset file '{}'", file.getPath());
-        _log.info("Loading RDF statements in memory ...");
-        try (RepositoryConnection conn = repository.getConnection()) {
-            conn.add(file, baseURI, format);
-            conn.commit();
-        } catch (OpenRDFException e) {
-            // handle Sesame exception. This catch-clause is
-            // optional since OpenRDFException is an unchecked exception
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        _log.info("RDF statements loaded in memory");
-    }
-
-    /**
      * PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
      * SELECT (COUNT(DISTINCT ?sub) AS ?nbSub) WHERE { ?sub rdf:type <%s> . }
      *
@@ -145,7 +99,7 @@ public class DiscoveryCardSparql {
         try (RepositoryConnection conn = repository.getConnection()) {
             _log.info("Querying dataset to get total number of subjects ...");
             String queryString = "PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>\n" +
-                                         "SELECT (COUNT(DISTINCT ?sub) AS ?nbSub) WHERE { ?sub rdf:type <%s> . }";
+                    "SELECT (COUNT(DISTINCT ?sub) AS ?nbSub) WHERE { ?sub rdf:type <%s> . }";
             queryString = String.format(queryString, constContext);
             TupleQuery tupleQuery = conn.prepareTupleQuery(QueryLanguage.SPARQL, queryString);
             try (TupleQueryResult result = tupleQuery.evaluate()) {
@@ -176,7 +130,7 @@ public class DiscoveryCardSparql {
         try (RepositoryConnection conn = repository.getConnection()) {
             _log.info("Querying dataset to get list of predicates ...");
             String queryString = "PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>\n" +
-                                         "SELECT DISTINCT ?pred WHERE { ?s rdf:type <%s>; ?pred ?o . }";
+                    "SELECT DISTINCT ?pred WHERE { ?s rdf:type <%s>; ?pred ?o . }";
             queryString = String.format(queryString, constContext);
             TupleQuery tupleQuery = conn.prepareTupleQuery(QueryLanguage.SPARQL, queryString);
             try (TupleQueryResult result = tupleQuery.evaluate()) {
@@ -196,7 +150,7 @@ public class DiscoveryCardSparql {
 
     /**
      * PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
-     *
+     * <p/>
      * SELECT (COUNT(?count) as ?nb) (MIN(?count) as ?min) (MAX(?count) as ?max)
      * WHERE {
      * SELECT (COUNT(DISTINCT ?pred) as ?count)
@@ -206,25 +160,27 @@ public class DiscoveryCardSparql {
      * } GROUP BY ?sub
      * }
      *
-     * @param repository   Sesame repository.
-     * @param constContext RDFS/OWL class or empty for unqualified.
+     * @param repository    Sesame repository.
+     * @param constContext  RDFS/OWL class or empty for unqualified.
+     * @param predicateList List of predicates.
      */
-    private void getBoundariesForPredicate(final Repository repository, final String constContext, final List<String> predicateList) {
+    private void getBoundariesForPredicate(final Repository repository, final String constContext,
+                                           final List<String> predicateList) {
         try (RepositoryConnection conn = repository.getConnection()) {
             _log.info("Querying dataset to get cardinality of predicates ...");
             for (String predicate : predicateList) {
                 String queryString = "PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>\n" +
-                                             "SELECT (COUNT(?count) as ?nb) (MIN(?count) as ?min) (MAX(?count) as ?max)\n" +
-                                             "WHERE {\n" +
-                                             "  SELECT (COUNT(DISTINCT ?obj) as ?count)\n" +
-                                             "  WHERE {\n";
+                        "SELECT (COUNT(?count) as ?nb) (MIN(?count) as ?min) (MAX(?count) as ?max)\n" +
+                        "WHERE {\n" +
+                        "  SELECT (COUNT(DISTINCT ?obj) as ?count)\n" +
+                        "  WHERE {\n";
                 if (!constContext.isEmpty()) {
                     queryString += "    ?sub rdf:type <%s> .\n";
                     queryString = String.format(queryString, constContext);
                 }
                 queryString += "    ?sub <%s> ?obj .\n" +
-                                       "  } GROUP BY ?sub\n" +
-                                       "}";
+                        "  } GROUP BY ?sub\n" +
+                        "}";
                 queryString = String.format(queryString, predicate);
                 TupleQuery tupleQuery = conn.prepareTupleQuery(QueryLanguage.SPARQL, queryString);
                 try (TupleQueryResult result = tupleQuery.evaluate()) {
@@ -235,7 +191,7 @@ public class DiscoveryCardSparql {
                         Value maxVal = bindingSet.getValue("max");
 
                         _log.info("predicate={} #objects={} min={} max={}", predicate, nbVal.stringValue(), minVal.stringValue
-                                                                                                                           (), maxVal.stringValue());
+                                (), maxVal.stringValue());
                     }
                 }
             }
@@ -263,11 +219,11 @@ public class DiscoveryCardSparql {
             _log.info("Querying dataset to get upper bound for cardinality of predicates ...");
             for (String predicate : predicateList) {
                 String queryString = "PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>\n" +
-                                             "  SELECT (COUNT(DISTINCT ?obj) as ?min)\n" +
-                                             "  WHERE {\n" +
-                                             "    ?sub rdf:type <%s>;\n" +
-                                             "      <%s> ?obj .\n" +
-                                             "  } GROUP BY ?sub ORDER BY asc(?min) LIMIT 1";
+                        "  SELECT (COUNT(DISTINCT ?obj) as ?min)\n" +
+                        "  WHERE {\n" +
+                        "    ?sub rdf:type <%s>;\n" +
+                        "      <%s> ?obj .\n" +
+                        "  } GROUP BY ?sub ORDER BY asc(?min) LIMIT 1";
                 queryString = String.format(queryString, constContext, predicate);
                 TupleQuery tupleQuery = conn.prepareTupleQuery(QueryLanguage.SPARQL, queryString);
                 try (TupleQueryResult result = tupleQuery.evaluate()) {
@@ -312,11 +268,11 @@ public class DiscoveryCardSparql {
             _log.info("Querying dataset to get lower bound for cardinality of predicates ...");
             for (String predicate : predicateList) {
                 String queryString = "PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>\n" +
-                                             "  SELECT (COUNT(DISTINCT ?obj) as ?max)\n" +
-                                             "  WHERE {\n" +
-                                             "    ?sub rdf:type <%s>;\n" +
-                                             "      <%s> ?obj .\n" +
-                                             "  } GROUP BY ?sub ORDER BY desc(?max) LIMIT 1";
+                        "  SELECT (COUNT(DISTINCT ?obj) as ?max)\n" +
+                        "  WHERE {\n" +
+                        "    ?sub rdf:type <%s>;\n" +
+                        "      <%s> ?obj .\n" +
+                        "  } GROUP BY ?sub ORDER BY desc(?max) LIMIT 1";
                 queryString = String.format(queryString, constContext, predicate);
                 TupleQuery tupleQuery = conn.prepareTupleQuery(QueryLanguage.SPARQL, queryString);
                 try (TupleQueryResult result = tupleQuery.evaluate()) {

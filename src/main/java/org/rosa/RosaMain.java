@@ -1,8 +1,8 @@
-package rdf.spine;
+package org.rosa;
 
 import com.beust.jcommander.JCommander;
 import com.beust.jcommander.Parameter;
-import rdf.spine.dao.DiscoveryCardSparql;
+import org.rosa.dao.DiscoveryCardSparql;
 
 import java.io.FileNotFoundException;
 
@@ -13,7 +13,7 @@ import java.io.FileNotFoundException;
  * @version 0.0.1
  * @since 29/04/16.
  */
-public class Rosa {
+public class RosaMain {
 
     @Parameter(names = "-baseline", description = "Run SPARQL extraction for cardinality constraints")
     private boolean baseline = false;
@@ -32,7 +32,7 @@ public class Rosa {
      * @param args Command line arguments.
      */
     public static void main(String[] args) {
-        Rosa main = new Rosa();
+        RosaMain main = new RosaMain();
         jc = new JCommander(main, args);
         main.run();
     }
@@ -45,7 +45,7 @@ public class Rosa {
             DiscoveryCardSparql bs = new DiscoveryCardSparql();
             try {
                 bs.runDiscovery(filename, constContext);
-                //                bs.runDiscovery("/media/sf_projects/spine-ldd/ShEx/shexcala-0.5
+                //                bs.runDiscovery("/media/sf_projects/rosa-ldd/ShEx/shexcala-0.5
                 // .8/experiments/dbpedia-personFunction/personFunction.nt.gz",
                 //                        "http://dbpedia.org/ontology/PersonFunction");
             } catch (FileNotFoundException e) {
