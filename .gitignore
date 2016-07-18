@@ -24,4 +24,4 @@ project/
 /src/main/scala/rdf/spine/parser/RangeTypeConstraint.scala
 
 # data
-rdf/
+/rdf/
