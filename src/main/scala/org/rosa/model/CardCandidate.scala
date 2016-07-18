@@ -4,7 +4,8 @@ package rdf.rosa.model
   * Class to represent a cardinality constraint candidate.
   *
   * @author Emir Munoz
-  * @since 17/12/15.
+  * @version 0.0.1
+  * @since 17/12/2015
   */
 class CardCandidate(var minBound: Int, var maxBound: Int, var context: String, var properties: Set[String]) extends Serializable {
 
