@@ -23,11 +23,12 @@ public class NumericOutlierDetector {
     private static final transient Logger _log = LoggerFactory.getLogger(NumericOutlierDetector.class.getName());
 
     /**
-     * Extreme Studentized Deviation (ESD) identifier as outlier detection rule.
-     * A default value for t is 3.
+     * Extreme Studentized Deviation (ESD) identifier as outlier detection rule. A default value for t is 3.
      *
-     * @param data   Array of numbers.
-     * @param tValue Factor value.
+     * @param data
+     *         Array of numbers.
+     * @param tValue
+     *         Factor value.
      */
     public static OutlierResult ruleESD(final double[] data, final double tValue) {
         _log.info("Running ESD outlier detection");
@@ -51,11 +52,12 @@ public class NumericOutlierDetector {
     }
 
     /**
-     * Hampel identifier as outlier detection rule.
-     * A default value for t is 3.
+     * Hampel identifier as outlier detection rule. A default value for t is 3.
      *
-     * @param data   Array of numbers.
-     * @param tValue Factor value.
+     * @param data
+     *         Array of numbers.
+     * @param tValue
+     *         Factor value.
      */
     public static OutlierResult ruleHampel(final double[] data, final double tValue) {
         _log.info("Running HAMPEL outlier detection");
@@ -80,11 +82,12 @@ public class NumericOutlierDetector {
     }
 
     /**
-     * Boxplot identifier as outlier detection rule.
-     * A default value for c is 1.5.
+     * Boxplot identifier as outlier detection rule. A default value for c is 1.5.
      *
-     * @param data   Array of numbers.
-     * @param cValue Factor value.
+     * @param data
+     *         Array of numbers.
+     * @param cValue
+     *         Factor value.
      */
     public static OutlierResult ruleBoxplot(final double[] data, final double cValue) {
         _log.info("Running BOXPLOT outlier detection");
@@ -96,7 +99,7 @@ public class NumericOutlierDetector {
         OutlierResult result = new OutlierResult();
         result.setLowerBound(lowerBound);
         result.setUpperBound(upperBound);
-        _log.warn("{}", result);
+        // _log.warn("{}", result);
         for (int i = 0; i < data.length; i++) {
             if (data[i] >= lowerBound && data[i] <= upperBound) {
                 result.addNonOutlier(data[i]);
@@ -111,14 +114,15 @@ public class NumericOutlierDetector {
     /**
      * Extract outliers from an array of values using z-score.
      *
-     * @param data Array of numbers.
+     * @param data
+     *         Array of numbers.
      */
     public static OutlierResult ruleZScore(final double[] data) {
         double mean = Statistics.getMean(data);
         double stdDev = Statistics.getStdDev(data);
         OutlierResult result = new OutlierResult();
         double zScore;
-        for (int i = 0; i < data.length ; i++) {
+        for (int i = 0; i < data.length; i++) {
             zScore = zScore(data[i], mean, stdDev);
             if (zScore <= 3) {
                 result.addNonOutlier(data[i]);
@@ -133,7 +137,8 @@ public class NumericOutlierDetector {
     /**
      * Extract outliers from an array of values using robust z-score.
      *
-     * @param data Array of numbers.
+     * @param data
+     *         Array of numbers.
      */
     public static OutlierResult ruleRobusZScore(final double[] data) {
         double mean = Statistics.getMean(data);
@@ -154,12 +159,15 @@ public class NumericOutlierDetector {
     }
 
     /**
-     * z-score (z-value, standard score, or normal score) is a measure of the divergence of an
-     * individual experimental result from the most probable result.
+     * z-score (z-value, standard score, or normal score) is a measure of the divergence of
+     * an individual experimental result from the most probable result.
      *
-     * @param value  Some value to test.
-     * @param mean   Mean value.
-     * @param stdDev Standard deviation.
+     * @param value
+     *         Some value to test.
+     * @param mean
+     *         Mean value.
+     * @param stdDev
+     *         Standard deviation.
      * @return z-score.
      */
     private static double zScore(final double value, final double mean, final double stdDev) {
@@ -169,9 +177,12 @@ public class NumericOutlierDetector {
     /**
      * Get z-score for an array of values.
      *
-     * @param data   Array of numbers.
-     * @param mean   Mean value of sequence.
-     * @param stdDev Standard deviation.
+     * @param data
+     *         Array of numbers.
+     * @param mean
+     *         Mean value of sequence.
+     * @param stdDev
+     *         Standard deviation.
      * @return z-score for every double in the input.
      */
     private static double[] zScore(final double[] data, final double mean, final double stdDev) {
@@ -186,9 +197,12 @@ public class NumericOutlierDetector {
     /**
      * robust z-score for a single value.
      *
-     * @param value Some value to test.
-     * @param mean  Mean value of sequence.
-     * @param mad   Median absolute deviation of sequence.
+     * @param value
+     *         Some value to test.
+     * @param mean
+     *         Mean value of sequence.
+     * @param mad
+     *         Median absolute deviation of sequence.
      * @return robust z-score for a value.
      */
     private static double robustZScore(final double value, final double mean, final double mad) {
@@ -198,9 +212,12 @@ public class NumericOutlierDetector {
     /**
      * Get robust z-score for an array of values.
      *
-     * @param data Array of numbers.
-     * @param mean Mean value of sequence.
-     * @param mad  Median absolute deviation of sequence.
+     * @param data
+     *         Array of numbers.
+     * @param mean
+     *         Mean value of sequence.
+     * @param mad
+     *         Median absolute deviation of sequence.
      * @return robust z-score for every double in the input.
      */
     private static double[] robustZScore(final double[] data, final double mean, final double mad) {
@@ -215,7 +232,8 @@ public class NumericOutlierDetector {
     /**
      * Extract outliers from a list of string values.
      *
-     * @param values List of string values.
+     * @param values
+     *         List of string values.
      */
     public static void extractOutliersFromString(List<String> values) {
         List<Double> sequence = Lists.newArrayList();

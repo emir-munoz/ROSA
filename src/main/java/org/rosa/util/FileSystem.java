@@ -5,12 +5,15 @@ import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.RandomAccessFile;
 import java.nio.file.Files;
 import java.nio.file.LinkOption;
 import java.nio.file.Path;
+import java.util.zip.GZIPInputStream;
 
 /**
  * @author Emir Munoz
+ * @version 0.1.2
  * @since 29/05/2016
  */
 public class FileSystem {
@@ -21,7 +24,8 @@ public class FileSystem {
     /**
      * Determines if a given file exists in disk.
      *
-     * @param path Path to the file.
+     * @param path
+     *         Path to the file.
      * @return true if the file exists; false otherwise.
      */
     public static boolean existsFile(final Path path) {
@@ -31,7 +35,8 @@ public class FileSystem {
     /**
      * Generate the directory if does not exists.
      *
-     * @param dirPath Path to directory.
+     * @param dirPath
+     *         Path to directory.
      */
     public static void setUpFolder(final Path dirPath) {
         File evalDirPath = new File(dirPath.toString());
@@ -48,7 +53,8 @@ public class FileSystem {
     /**
      * Generate directories for a given path.
      *
-     * @param file File path.
+     * @param file
+     *         File path.
      */
     public static void setUpFolder(final File file) {
         if (!FileSystem.existsFile(file.getParentFile().toPath())) {
@@ -58,5 +64,26 @@ public class FileSystem {
             }
         }
     }
+
+    /**
+     * Checks if a file is gzipped.
+     *
+     * @param file
+     *         Input file.
+     * @return true if file is gzip; false otherwise.
+     */
+    public static boolean isGZipped(File file) {
+        int magic = 0;
+        try {
+            RandomAccessFile raf = new RandomAccessFile(file, "r");
+            magic = raf.read() & 0xff | ((raf.read() << 8) & 0xff00);
+            raf.close();
+        } catch (Throwable e) {
+            e.printStackTrace(System.err);
+        }
+
+        return magic == GZIPInputStream.GZIP_MAGIC;
+    }
+
 
 }

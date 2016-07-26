@@ -7,29 +7,31 @@ import org.eclipse.rdf4j.repository.sail.SailRepository;
 import org.eclipse.rdf4j.repository.sparql.SPARQLRepository;
 import org.eclipse.rdf4j.rio.RDFFormat;
 import org.eclipse.rdf4j.rio.RDFHandler;
+import org.eclipse.rdf4j.rio.RDFParser;
 import org.eclipse.rdf4j.rio.Rio;
 import org.eclipse.rdf4j.sail.memory.MemoryStore;
+import org.eclipse.rdf4j.sail.nativerdf.NativeStore;
 import org.rosa.util.FileSystem;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
+import java.io.*;
 import java.nio.file.Paths;
+import java.util.Optional;
+import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
 
 /**
  * Set of RDF utils.
  *
  * @author Emir Munoz
- * @version 0.0.2
+ * @version 0.0.4
  * @since 01/07/2016
  */
-public class RDFUtil {
+public class RdfUtil {
 
     /** class logger */
-    private final static transient Logger _log = LoggerFactory.getLogger(RDFUtil.class.getSimpleName());
+    private final static transient Logger _log = LoggerFactory.getLogger(RdfUtil.class.getSimpleName());
 
     /**
      * Generate a main memory RDF repository.
@@ -47,7 +49,8 @@ public class RDFUtil {
     /**
      * Generate a main memory RDF repository in a given path.
      *
-     * @param dirPath Path to directory.
+     * @param dirPath
+     *         Path to directory.
      * @return Repository instance.
      */
     public static Repository connectToMemoryRepository(final String dirPath) {
@@ -61,10 +64,12 @@ public class RDFUtil {
 
     /**
      * Connecting to SPARQL endpoint.
-     * @param sparqlEndpoint SPARQL endpoint URI.
+     *
+     * @param sparqlEndpoint
+     *         SPARQL endpoint URI.
      * @return Repository instance.
      */
-    public static Repository connectToSPARQLRepository(final String sparqlEndpoint) {
+    public static Repository connectToSparqlRepository(final String sparqlEndpoint) {
         _log.info("Connecting to SPARQL endpoint {}", sparqlEndpoint);
         Repository repository = new SPARQLRepository(sparqlEndpoint);
         repository.initialize();
@@ -75,28 +80,33 @@ public class RDFUtil {
     /**
      * Generate a native RDF repository in a given path.
      *
-     * @param dirPath Path to directory.
+     * @param dirPath
+     *         Path to directory.
      * @return New native repository instance.
      */
-    //    public static Repository connectToNativeRepository(final String dirPath) {
-    //        _log.info("Creating Native RDF repository at '{}'", dirPath);
-    //        File dataDir = new File(dirPath);
-    //        Repository repository = new SailRepository(new NativeStore(dataDir));
-    //        repository.initialize();
-    //
-    //        return repository;
-    //    }
+    public static Repository connectToNativeRepository(final String dirPath) {
+        _log.info("Creating Native RDF repository at '{}'", dirPath);
+        File dataDir = new File(dirPath);
+        Repository repository = new SailRepository(new NativeStore(dataDir));
+        repository.initialize();
+
+        return repository;
+    }
 
     /**
      * Load an RDF file into the repository.
      *
-     * @param file       RDF file descriptor.
-     * @param format     Serialization format of input file.
-     * @param baseURI    Base URI.
-     * @param repository Reference repository.
+     * @param file
+     *         RDF file descriptor.
+     * @param format
+     *         Serialization format of input file.
+     * @param baseURI
+     *         Base URI.
+     * @param repository
+     *         Reference repository.
      */
-    public static void loadRDFFromFile(final File file, final RDFFormat format,
-                                       final String baseURI, Repository repository) {
+    public static void loadRdfFile(final File file, final RDFFormat format,
+                                   final String baseURI, Repository repository) {
         _log.info("Loading {} file '{}' into repository", format.getName(), file.getPath());
         try (RepositoryConnection conn = repository.getConnection()) {
             conn.add(file, baseURI, format);
@@ -113,17 +123,54 @@ public class RDFUtil {
     }
 
     /**
+     * Load an RDF file by chunks of a given size into the repository.
+     *
+     * @param file
+     *         RDF file descriptor.
+     * @param baseUri
+     *         Base URI.
+     * @param repository
+     *         Reference repository.
+     */
+    public static void loadRdfFileByChunks(final File file, final String baseUri,
+                                           Repository repository) {
+        _log.info("Loading file '{}' into repository", file.getPath());
+        try (RepositoryConnection conn = repository.getConnection()) {
+            Optional<RDFFormat> format = Rio.getParserFormatForFileName(file.toString());
+            RDFParser rdfParser = Rio.createParser(format.get());
+            rdfParser.setRDFHandler(new RdfChunkLoader(conn));
+            InputStream is = new FileInputStream(file);
+            try {
+                if (FileSystem.isGZipped(file)) {
+                    is = new GZIPInputStream(is);
+                }
+                rdfParser.parse(is, baseUri); //"file://" + file.getCanonicalPath()
+                conn.commit();
+            } finally {
+                conn.close();
+            }
+        } catch (RDF4JException e) {
+            // handle Sesame exception. This catch-clause is
+            // optional since RDF4JException is an unchecked exception
+        } catch (IOException e) {
+            _log.error("Error loading RDF file to local repository. Closing the application");
+            e.printStackTrace();
+            System.exit(1);
+        }
+        _log.info("RDF file loaded and repository ready for querying.");
+    }
+
+    /**
      * Dump the content of a repository into a static file.
      *
-     * @param filename   Path to output file.
-     * @param repository Reference repository.
+     * @param filename
+     *         Path to output file.
+     * @param repository
+     *         Reference repository.
      */
     public static void writeRepoToFile(final String filename, Repository repository) {
         _log.info("Saving repository to file ...");
         try (RepositoryConnection conn = repository.getConnection()) {
-            // conn.begin();
-            // Export all statements in the context to System.out, in RDF/XML format
-            //RDFHandler writer = Rio.createWriter(RDFFormat.NTRIPLES, System.out);
             RDFHandler writer;
             GZIPOutputStream gzip = null;
             try {

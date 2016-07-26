@@ -2,9 +2,7 @@ package org.rosa.model;
 
 import com.google.common.base.Joiner;
 
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 /**
  * Class to represent a cardinality constraint candidate.
@@ -28,12 +26,16 @@ public class CardCandidate {
     }
 
     /**
-     * Class constructor
+     * Class constructor.
      *
-     * @param minBound Lower bound.
-     * @param maxBound Upper bound.
-     * @param context Context.
-     * @param properties Set of properties.
+     * @param minBound
+     *         Lower bound.
+     * @param maxBound
+     *         Upper bound.
+     * @param context
+     *         Context.
+     * @param properties
+     *         Set of properties.
      */
     public CardCandidate(final int minBound, final int maxBound,
                          final String context, final List<String> properties) {

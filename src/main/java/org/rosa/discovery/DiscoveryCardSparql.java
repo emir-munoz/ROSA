@@ -12,13 +12,12 @@ import org.eclipse.rdf4j.query.TupleQuery;
 import org.eclipse.rdf4j.query.TupleQueryResult;
 import org.eclipse.rdf4j.repository.Repository;
 import org.eclipse.rdf4j.repository.RepositoryConnection;
-import org.eclipse.rdf4j.rio.RDFFormat;
 import org.rosa.ml.numeric.DetectionType;
 import org.rosa.ml.numeric.NumericOutlierDetector;
 import org.rosa.model.CardCandidate;
 import org.rosa.model.DataSource;
 import org.rosa.model.OutlierResult;
-import org.rosa.rdf.RDFUtil;
+import org.rosa.rdf.RdfUtil;
 import org.rosa.util.MemoryUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -63,15 +62,21 @@ public class DiscoveryCardSparql {
     /**
      * Execute discovery method.
      *
-     * @param source        Data source (e.g., FILE, SPARQL)
-     * @param uri           URI to source, file or SPARQL endpoint.
-     * @param constContext  Context of the constraint (i.e., a class)
-     * @param outlierMethod Outlier detection method.
-     * @param tValue        Deviation factor.
+     * @param source
+     *         Data source (e.g., FILE, SPARQL)
+     * @param uri
+     *         URI to source, file or SPARQL endpoint.
+     * @param constContext
+     *         Context of the constraint (i.e., a class)
+     * @param outlierMethod
+     *         Outlier detection method.
+     * @param tValue
+     *         Deviation factor.
      * @throws FileNotFoundException
      */
     public void runDiscovery(final DataSource source, final String uri, final String constContext,
-                             final DetectionType outlierMethod, final double tValue) throws FileNotFoundException {
+                             final DetectionType outlierMethod, final double tValue)
+            throws FileNotFoundException {
         _log.info("Starting discovery of cardinality constraints from RDF data");
         if (!constContext.isEmpty()) {
             _log.info("Context is limited to class '{}'", constContext);
@@ -82,7 +87,8 @@ public class DiscoveryCardSparql {
         Repository repository;
         switch (source) {
             case FILE:
-                repository = RDFUtil.connectToMemoryRepository();
+                repository = RdfUtil.connectToMemoryRepository();
+                // repository = RdfUtil.connectToNativeRepository("./rdf/rosa-repo/");
                 // Loading statements from a file
                 File file = new File(uri);
                 if (!file.exists()) {
@@ -90,11 +96,11 @@ public class DiscoveryCardSparql {
                 }
                 String baseURI = "http://example.org/example/local";
                 MemoryUtils.printMemoryInfo();
-                RDFUtil.loadRDFFromFile(file, RDFFormat.NTRIPLES, baseURI, repository);
+                RdfUtil.loadRdfFileByChunks(file, baseURI, repository);
                 MemoryUtils.printMemoryInfo();
                 break;
             case SPARQL:
-                repository = RDFUtil.connectToSPARQLRepository(uri);
+                repository = RdfUtil.connectToSparqlRepository(uri);
                 break;
             default:
                 throw new IllegalArgumentException("Input data source is not known");
@@ -108,19 +114,19 @@ public class DiscoveryCardSparql {
         _log.info("{} predicates found in dataset", predicateList.size());
 
         // direct extraction of cardinalities
-        //        List<CardCandidate> cardCandidatesBaseline = getCardinalityCandidates(repository, constContext,
-        //                nbSubjects, predicateList);
-        //        cardCandidatesBaseline.forEach(card -> _log.info("{}", card));
+        // List<CardCandidate> cardCandidatesBaseline = getCardinalityCandidates(repository, constContext,
+        // nbSubjects, predicateList);
+        // cardCandidatesBaseline.forEach(card -> _log.info("{}", card));
 
         MemoryUtils.printMemoryInfo();
         stopwatch.stop();
         _log.info("Elapsed time={}ms", stopwatch.elapsed(TimeUnit.MILLISECONDS));
 
         // extraction of cardinalities with outlier detection
-        //        // MemoryUtils.printMemoryInfo();
-        //        List<Integer> lowerBounds = getLowerBounds(repository, constContext, predicateList);
-        //        // MemoryUtils.printMemoryInfo();
-        //        List<Integer> upperBounds = getUpperBounds(repository, constContext, predicateList);
+        // // MemoryUtils.printMemoryInfo();
+        // List<Integer> lowerBounds = getLowerBounds(repository, constContext, predicateList);
+        // // MemoryUtils.printMemoryInfo();
+        // List<Integer> upperBounds = getUpperBounds(repository, constContext, predicateList);
 
         stopwatch.reset();
         stopwatch.start();
@@ -162,7 +168,6 @@ public class DiscoveryCardSparql {
                         throw new IllegalArgumentException("The outlier detection method indicated is not supported");
                 }
             } else {
-                // _log.warn("Only one value found for predicate");
                 outlierResults = new OutlierResult();
                 outlierResults.setNonOutliers(Lists.newArrayList(cardinalityMap.values()));
             }
@@ -170,6 +175,7 @@ public class DiscoveryCardSparql {
             candidate = new CardCandidate(outlierResults.getNonOutliers().get(0).intValue(),
                     outlierResults.getNonOutliers().get(outlierResults.getNonOutliers().size() - 1).intValue(),
                     constContext, Lists.newArrayList(predicate));
+
             // check whether the lower bound should be removed
             if (cardinalityMap.keySet().size() < nbSubjects) {
                 candidate.setMinBound(0);
@@ -193,22 +199,19 @@ public class DiscoveryCardSparql {
 
     /**
      * Get the number of distinct subjects in the KG in a given context.
-     * <p/>
-     * <pre>
-     * PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
-     * SELECT (COUNT(DISTINCT ?sub) AS ?nbSub) WHERE { ?sub rdf:type <%s> . }
-     * </pre>
      *
-     * @param repository   Sesame repository.
-     * @param constContext RDFS/OWL class or empty for unqualified.
+     * @param repository
+     *         Sesame repository.
+     * @param constContext
+     *         RDFS/OWL class or empty for unqualified.
      * @return Number of distinct subjects in KG.
      */
     private int getNbSubjects(final Repository repository, final String constContext) {
         int nbSubjects = 0;
         try (RepositoryConnection conn = repository.getConnection()) {
             _log.info("Querying dataset to get total number of subjects ...");
-            //            String queryString = "PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>\n" +
-            //                    "SELECT (COUNT(DISTINCT ?sub) AS ?nbSub) WHERE { ?sub rdf:type <%s> . }";
+            // String queryString = "PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>\n" +
+            // "SELECT (COUNT(DISTINCT ?sub) AS ?nbSub) WHERE { ?sub rdf:type <%s> . }";
             String queryString = "PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>\n" +
                     "PREFIX owl: <http://www.w3.org/2002/07/owl#>\n" +
                     "\n" +
@@ -244,11 +247,13 @@ public class DiscoveryCardSparql {
     }
 
     /**
-     * PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
-     * SELECT DISTINCT ?pred WHERE { ?s rdf:type <%s>; ?pred ?o . }
+     * PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> SELECT DISTINCT ?pred WHERE { ?s rdf:type <%s>; ?pred
+     * ?o . }
      *
-     * @param repository   Sesame repository.
-     * @param constContext RDFS/OWL class or empty for unqualified.
+     * @param repository
+     *         Sesame repository.
+     * @param constContext
+     *         RDFS/OWL class or empty for unqualified.
      * @return List of predicates in repository.
      */
     private List<String> getListOfPredicates(final Repository repository, final String constContext) {
@@ -276,10 +281,14 @@ public class DiscoveryCardSparql {
     /**
      * Get the cardinality constraint candidates for all predicates the KG.
      *
-     * @param repository    Sesame repository.
-     * @param constContext  RDFS/OWL class or empty for unqualified.
-     * @param nbSubjects    Number of different resources of a given type in the KG.
-     * @param predicateList List of predicates.
+     * @param repository
+     *         Sesame repository.
+     * @param constContext
+     *         RDFS/OWL class or empty for unqualified.
+     * @param nbSubjects
+     *         Number of different resources of a given type in the KG.
+     * @param predicateList
+     *         List of predicates.
      */
     private List<CardCandidate> getCardinalityCandidates(final Repository repository, final String constContext,
                                                          final int nbSubjects, final List<String> predicateList) {
@@ -364,15 +373,17 @@ public class DiscoveryCardSparql {
     /**
      * Get the counted cardinalities for a context predicate in the KG.
      *
-     * @param repository   Sesame repository.
-     * @param constContext RDFS/OWL class or empty for unqualified.
-     * @param predicate    Fixed predicate.
+     * @param repository
+     *         Sesame repository.
+     * @param constContext
+     *         RDFS/OWL class or empty for unqualified.
+     * @param predicate
+     *         Fixed predicate.
      * @return Lower bounds for predicates.
      */
     private Map<String, Double> getCardinalityCounts(final Repository repository,
                                                      final String constContext,
                                                      final String predicate) {
-        // List<Integer> cardinaltities = Lists.newArrayList();
         Map<String, Double> cardinalityMap = Maps.newHashMap();
         try (RepositoryConnection conn = repository.getConnection()) {
             _log.info("Querying dataset to get cardinality counts of predicate <{}>", predicate);
@@ -421,7 +432,6 @@ public class DiscoveryCardSparql {
                     bindingSet = result.next();
                     subjectVal = bindingSet.getValue("first_subj");
                     cardVal = bindingSet.getValue("nbValues");
-                    // cardinaltities.add(Integer.valueOf(cardVal.stringValue()));
                     cardinalityMap.put(subjectVal.stringValue(), Double.valueOf(cardVal.stringValue()));
                 }
             }
@@ -433,9 +443,12 @@ public class DiscoveryCardSparql {
     /**
      * Get the lower bound for each context predicate in the KG.
      *
-     * @param repository    Sesame repository.
-     * @param constContext  RDFS/OWL class or empty for unqualified.
-     * @param predicateList List of predicate IRIs.
+     * @param repository
+     *         Sesame repository.
+     * @param constContext
+     *         RDFS/OWL class or empty for unqualified.
+     * @param predicateList
+     *         List of predicate IRIs.
      * @return Lower bounds for predicates.
      */
     private List<Integer> getLowerBounds(final Repository repository, final String constContext,
@@ -444,12 +457,12 @@ public class DiscoveryCardSparql {
         try (RepositoryConnection conn = repository.getConnection()) {
             _log.info("Querying dataset to get lower bound cardinality of predicates ...");
             for (String predicate : predicateList) {
-                //                String queryString = "PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>\n" +
-                //                        "  SELECT (COUNT(DISTINCT ?obj) as ?min)\n" +
-                //                        "  WHERE {\n" +
-                //                        "    ?sub rdf:type <%s>;\n" +
-                //                        "      <%s> ?obj .\n" +
-                //                        "  } GROUP BY ?sub ORDER BY asc(?min) LIMIT 1";
+                // String queryString = "PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>\n" +
+                // "  SELECT (COUNT(DISTINCT ?obj) as ?min)\n" +
+                // "  WHERE {\n" +
+                // "    ?sub rdf:type <%s>;\n" +
+                // "      <%s> ?obj .\n" +
+                // "  } GROUP BY ?sub ORDER BY asc(?min) LIMIT 1";
                 String queryString = "PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>\n" +
                         "PREFIX owl: <http://www.w3.org/2002/07/owl#>\n" +
                         "\n" +
@@ -485,26 +498,15 @@ public class DiscoveryCardSparql {
                         "    }\n" +
                         "  }\n" +
                         "} GROUP BY ?first_subj";
-                // \n" +
-                // "ORDER BY ASC(?nbValues)\n" +
-                // "LIMIT 1";
                 queryString = String.format(queryString, predicate, constContext);
                 TupleQuery tupleQuery = conn.prepareTupleQuery(QueryLanguage.SPARQL, queryString);
                 try (TupleQueryResult result = tupleQuery.evaluate()) {
                     BindingSet bindingSet;
                     Value minVal;
-                    // int lowerBound;
                     while (result.hasNext()) {
                         bindingSet = result.next();
                         minVal = bindingSet.getValue("nbValues");
                         lowerBounds.add(Integer.valueOf(minVal.stringValue()));
-                        // minBound = lowerBound;
-                        // if (minBound == totalNumSubjects) {
-                        // minBound = lowerBound;
-                        // } else {
-                        // minBound = 0;
-                        // }
-                        // _log.info("min={} for predicate={}", minBound, predicate);
                     }
                 }
             }
@@ -516,9 +518,12 @@ public class DiscoveryCardSparql {
     /**
      * Get the upper bound for each context predicate in the KG.
      *
-     * @param repository    Sesame repository.
-     * @param constContext  RDFS/OWL class or empty for unqualified.
-     * @param predicateList List of predicate IRIs.
+     * @param repository
+     *         Sesame repository.
+     * @param constContext
+     *         RDFS/OWL class or empty for unqualified.
+     * @param predicateList
+     *         List of predicate IRIs.
      * @return Upper bounds for predicates.
      */
     private List<Integer> getUpperBounds(final Repository repository, final String constContext,
@@ -527,12 +532,12 @@ public class DiscoveryCardSparql {
         try (RepositoryConnection conn = repository.getConnection()) {
             _log.info("Querying dataset to get upper bound cardinality of predicates ...");
             for (String predicate : predicateList) {
-                //                String queryString = "PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>\n" +
-                //                        "  SELECT (COUNT(DISTINCT ?obj) as ?max)\n" +
-                //                        "  WHERE {\n" +
-                //                        "    ?sub rdf:type <%s>;\n" +
-                //                        "      <%s> ?obj .\n" +
-                //                        "  } GROUP BY ?sub ORDER BY desc(?max) LIMIT 1";
+                // String queryString = "PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>\n" +
+                // "  SELECT (COUNT(DISTINCT ?obj) as ?max)\n" +
+                // "  WHERE {\n" +
+                // "    ?sub rdf:type <%s>;\n" +
+                // "      <%s> ?obj .\n" +
+                // "  } GROUP BY ?sub ORDER BY desc(?max) LIMIT 1";
                 String queryString = "PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>\n" +
                         "PREFIX owl: <http://www.w3.org/2002/07/owl#>\n" +
                         "\n" +
@@ -568,9 +573,6 @@ public class DiscoveryCardSparql {
                         "    }\n" +
                         "  }\n" +
                         "} GROUP BY ?first_subj";
-                //                        \n" +
-                //                        "ORDER BY DESC(?nbValues)\n" +
-                //                        "LIMIT 1";
                 queryString = String.format(queryString, predicate, constContext);
                 TupleQuery tupleQuery = conn.prepareTupleQuery(QueryLanguage.SPARQL, queryString);
                 try (TupleQueryResult result = tupleQuery.evaluate()) {
@@ -580,8 +582,6 @@ public class DiscoveryCardSparql {
                         bindingSet = result.next();
                         maxVal = bindingSet.getValue("nbValues");
                         upperBounds.add(Integer.valueOf(maxVal.stringValue()));
-
-                        // _log.info("max={} for predicate={}", maxBound, predicate);
                     }
                 }
             }

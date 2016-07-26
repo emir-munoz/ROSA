@@ -68,7 +68,8 @@ public class OutlierResult {
 
     @Override
     public String toString() {
-        return "OutlierRes:{lowerBound=" + lowerBound + ", upperBound=" + upperBound + "}";
+        return "OutlierRes:{lowerBound=" + lowerBound +
+                ", upperBound=" + upperBound + "}";
     }
 
 }
