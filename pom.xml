@@ -159,6 +159,12 @@
             <groupId>data2semantics</groupId>
             <artifactId>mustard-kernels</artifactId>
             <version>0.1.0</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.openrdf.sesame</groupId>
+                    <artifactId>sesame-runtime</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>data2semantics</groupId>
@@ -205,35 +211,74 @@
         </pluginManagement>
 
         <plugins>
-            <!-- Plugin to create a single jar that includes all dependencies -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-assembly-plugin</artifactId>
-                <version>2.4</version>
-                <configuration>
-                    <descriptorRefs>
-                        <descriptorRef>jar-with-dependencies</descriptorRef>
-                    </descriptorRefs>
-                    <archive>
-                        <manifest>
-                            <mainClass>org.rosa.RosaMain</mainClass>
-                        </manifest>
-                    </archive>
-                    <!--<descriptors>-->
-                    <!--<descriptor>assembly.xml</descriptor>-->
-                    <!--</descriptors>-->
-                </configuration>
+                <artifactId>maven-dependency-plugin</artifactId>
                 <executions>
                     <execution>
-                        <id>make-assembly</id>
-                        <phase>package</phase>
+                        <id>copy-dependencies</id>
+                        <phase>prepare-package</phase>
                         <goals>
-                            <goal>single</goal>
+                            <goal>copy-dependencies</goal>
                         </goals>
+                        <configuration>
+                            <outputDirectory>${project.build.directory}/ROSA/lib</outputDirectory>
+                            <overWriteReleases>false</overWriteReleases>
+                            <overWriteSnapshots>false</overWriteSnapshots>
+                            <overWriteIfNewer>true</overWriteIfNewer>
+                        </configuration>
                     </execution>
                 </executions>
             </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-jar-plugin</artifactId>
+                <configuration>
+                    <archive>
+                        <manifest>
+                            <addClasspath>true</addClasspath>
+                            <classpathPrefix>lib/</classpathPrefix>
+                            <mainClass>org.rosa.RosaMain</mainClass>
+                        </manifest>
+                        <manifestEntries>
+                            <Class-Path>.</Class-Path>
+                        </manifestEntries>
+                    </archive>
+                    <finalName>ROSA/ROSA-${project.version}</finalName>
+                </configuration>
+            </plugin>
         </plugins>
+
+        <!--<plugins>-->
+            <!--&lt;!&ndash; Plugin to create a single jar that includes all dependencies &ndash;&gt;-->
+            <!--<plugin>-->
+                <!--<groupId>org.apache.maven.plugins</groupId>-->
+                <!--<artifactId>maven-assembly-plugin</artifactId>-->
+                <!--<version>2.4</version>-->
+                <!--<configuration>-->
+                    <!--<descriptorRefs>-->
+                        <!--<descriptorRef>jar-with-dependencies</descriptorRef>-->
+                    <!--</descriptorRefs>-->
+                    <!--<archive>-->
+                        <!--<manifest>-->
+                            <!--<mainClass>org.rosa.RosaMain</mainClass>-->
+                        <!--</manifest>-->
+                    <!--</archive>-->
+                    <!--&lt;!&ndash;<descriptors>&ndash;&gt;-->
+                    <!--&lt;!&ndash;<descriptor>assembly.xml</descriptor>&ndash;&gt;-->
+                    <!--&lt;!&ndash;</descriptors>&ndash;&gt;-->
+                <!--</configuration>-->
+                <!--<executions>-->
+                    <!--<execution>-->
+                        <!--<id>make-assembly</id>-->
+                        <!--<phase>package</phase>-->
+                        <!--<goals>-->
+                            <!--<goal>single</goal>-->
+                        <!--</goals>-->
+                    <!--</execution>-->
+                <!--</executions>-->
+            <!--</plugin>-->
+        <!--</plugins>-->
     </build>
 
 </project>
