@@ -154,6 +154,23 @@
             <artifactId>commons-logging</artifactId>
             <version>1.2</version>
         </dependency>
+        <!-- RDF kernels -->
+        <dependency>
+            <groupId>data2semantics</groupId>
+            <artifactId>mustard-kernels</artifactId>
+            <version>0.1.0</version>
+        </dependency>
+        <dependency>
+            <groupId>com.github.Data2Semantics</groupId>
+            <artifactId>nodes</artifactId>
+            <version>v0.1.2</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.openrdf.sesame</groupId>
+                    <artifactId>sesame-runtime</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
     </dependencies>
 
     <build>
