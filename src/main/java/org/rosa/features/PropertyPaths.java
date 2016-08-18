@@ -9,7 +9,7 @@ import org.eclipse.rdf4j.query.TupleQueryResult;
 import org.eclipse.rdf4j.repository.Repository;
 import org.eclipse.rdf4j.repository.RepositoryConnection;
 import org.eclipse.rdf4j.rio.RDFFormat;
-import org.rosa.rdf.RdfUtil;
+import org.rosa.rdf.RdfUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -40,11 +40,11 @@ public class PropertyPaths {
      * Initialization.
      */
     private void init() {
-        Repository repository = RdfUtil.connectToMemoryRepository("./rdf/rosa-repo/");
+        Repository repository = RdfUtils.connectToMemoryRepository("./rdf/rosa-repo/");
         final File file = new File("C:/projects/tomoe-dev/bio-uc/datasets/bio2rdf/sider/20160405/sider-se.nq");
         final String baseURI = "http://example.org/";
-        RdfUtil.loadRdfFile(file, RDFFormat.NQUADS, baseURI, repository);
-        // RdfUtil.writeRepoToFile("./rdf/rosa-rdf/two-entities-v0.0.1.nt.gz", repository);
+        RdfUtils.loadRdfFile(file, RDFFormat.NQUADS, baseURI, repository);
+        // RdfUtils.writeRepoToFile("./rdf/rosa-rdf/two-entities-v0.0.1.nt.gz", repository);
         List<String> paths = this.getPropertyPathsOfLength(2, "http://bio2rdf.org/sider_vocabulary:Drug-Effect-Association", repository);
         paths.forEach(System.out::println);
     }

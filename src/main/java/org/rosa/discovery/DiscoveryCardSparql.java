@@ -17,7 +17,7 @@ import org.rosa.ml.numeric.NumericOutlierDetector;
 import org.rosa.model.CardCandidate;
 import org.rosa.model.DataSource;
 import org.rosa.model.OutlierResult;
-import org.rosa.rdf.RdfUtil;
+import org.rosa.rdf.RdfUtils;
 import org.rosa.util.MemoryUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -87,8 +87,8 @@ public class DiscoveryCardSparql {
         Repository repository;
         switch (source) {
             case FILE:
-                repository = RdfUtil.connectToMemoryRepository();
-                // repository = RdfUtil.connectToNativeRepository("./rdf/rosa-repo/");
+                repository = RdfUtils.connectToMemoryRepository();
+                // repository = RdfUtils.connectToNativeRepository("./rdf/rosa-repo/");
                 // Loading statements from a file
                 File file = new File(uri);
                 if (!file.exists()) {
@@ -96,11 +96,11 @@ public class DiscoveryCardSparql {
                 }
                 String baseURI = "http://example.org/example/local";
                 MemoryUtils.printMemoryInfo();
-                RdfUtil.loadRdfFileByChunks(file, baseURI, repository);
+                RdfUtils.loadRdfFileByChunks(file, baseURI, repository);
                 MemoryUtils.printMemoryInfo();
                 break;
             case SPARQL:
-                repository = RdfUtil.connectToSparqlRepository(uri);
+                repository = RdfUtils.connectToSparqlRepository(uri);
                 break;
             default:
                 throw new IllegalArgumentException("Input data source is not known");

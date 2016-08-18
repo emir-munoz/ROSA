@@ -28,10 +28,10 @@ import java.util.zip.GZIPOutputStream;
  * @version 0.0.4
  * @since 01/07/2016
  */
-public class RdfUtil {
+public class RdfUtils {
 
     /** class logger */
-    private final static transient Logger _log = LoggerFactory.getLogger(RdfUtil.class.getSimpleName());
+    private final static transient Logger _log = LoggerFactory.getLogger(RdfUtils.class.getSimpleName());
 
     /**
      * Generate a main memory RDF repository.
