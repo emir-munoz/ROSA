@@ -39,7 +39,7 @@
         <spark.version>1.5.1</spark.version>
         <log4j.version>2.3</log4j.version>
         <guava.version>18.0</guava.version>
-        <rdf4j.version>2.0M3</rdf4j.version>
+        <rdf4j.version>2.0</rdf4j.version>
     </properties>
 
     <dependencies>
@@ -164,6 +164,14 @@
                     <groupId>org.openrdf.sesame</groupId>
                     <artifactId>sesame-runtime</artifactId>
                 </exclusion>
+                <exclusion>
+                    <groupId>org.slf4j</groupId>
+                    <artifactId>slf4j-log4j12</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>log4j</groupId>
+                    <artifactId>log4j</artifactId>
+                </exclusion>
             </exclusions>
         </dependency>
         <dependency>
@@ -174,6 +182,14 @@
                 <exclusion>
                     <groupId>org.openrdf.sesame</groupId>
                     <artifactId>sesame-runtime</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.slf4j</groupId>
+                    <artifactId>slf4j-log4j12</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>log4j</groupId>
+                    <artifactId>log4j</artifactId>
                 </exclusion>
             </exclusions>
         </dependency>
@@ -233,6 +249,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-jar-plugin</artifactId>
+                <version>3.0.2</version>
                 <configuration>
                     <archive>
                         <manifest>
