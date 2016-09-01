@@ -67,6 +67,19 @@ public class OutlierResult {
     }
 
     @Override
+    public boolean equals(Object other) {
+        if (this == other) {
+            return true;
+        }
+        if (!(other instanceof OutlierResult)) {
+            return false;
+        }
+        OutlierResult that = (OutlierResult) other;
+
+        return this.lowerBound == that.lowerBound && this.upperBound == that.upperBound;
+    }
+
+    @Override
     public String toString() {
         return "OutlierRes:{lowerBound=" + lowerBound +
                 ", upperBound=" + upperBound + "}";

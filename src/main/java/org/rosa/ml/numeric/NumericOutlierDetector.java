@@ -99,7 +99,7 @@ public class NumericOutlierDetector {
         OutlierResult result = new OutlierResult();
         result.setLowerBound(lowerBound);
         result.setUpperBound(upperBound);
-        // _log.warn("{}", result);
+         _log.warn("{}", result);
         for (int i = 0; i < data.length; i++) {
             if (data[i] >= lowerBound && data[i] <= upperBound) {
                 result.addNonOutlier(data[i]);

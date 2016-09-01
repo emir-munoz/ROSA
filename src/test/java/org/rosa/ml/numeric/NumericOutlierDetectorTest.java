@@ -1,54 +1,75 @@
 package org.rosa.ml.numeric;
 
+import org.junit.Assert;
 import org.junit.Test;
+import org.rosa.model.OutlierResult;
 
 /**
- * Test numerical outlier detection.
+ * {@link NumericOutlierDetector} unit tests.
  *
  * @author Emir Munoz
- * @version 0.0.2
+ * @version 0.0.3
  * @since 25/06/2016
  */
 public class NumericOutlierDetectorTest {
 
     @Test
     public void testRuleESD() {
-        System.out.println(NumericOutlierDetector.ruleESD(new double[]{1, 1, 1, 2, 1, 2, 5}, 2));
-    }
-
-    @Test
-    public void testRuleHampel() {
-        System.out.println(NumericOutlierDetector.ruleHampel(new double[]{1, 1, 1, 2, 1, 2, 5}, 3));
-    }
-
-    @Test
-    public void testRuleHampelWithOnes() {
-        System.out.println(NumericOutlierDetector.ruleHampel(new double[]{1, 1, 1}, 3));
+        OutlierResult res = NumericOutlierDetector.ruleESD(new double[]{1, 1, 1, 2, 1, 2, 5}, 2);
+        Assert.assertEquals(-0.85338, res.getLowerBound(), 1e-5);
+        Assert.assertEquals(4.56766, res.getUpperBound(), 1e-5);
+        System.out.println(res);
     }
 
     @Test
     public void testESDWithOnes() {
-        System.out.println(NumericOutlierDetector.ruleESD(new double[]{1, 1, 1}, 3));
+        OutlierResult res = NumericOutlierDetector.ruleESD(new double[]{1, 1, 1}, 3);
+        Assert.assertEquals(1.0, res.getLowerBound(), 1e-5);
+        Assert.assertEquals(1.0, res.getUpperBound(), 1e-5);
+        System.out.println(res);
+    }
+
+    @Test
+    public void testRuleHampel() {
+        OutlierResult res = NumericOutlierDetector.ruleHampel(new double[]{1, 1, 1, 2, 1, 2, 5}, 3);
+        Assert.assertEquals(-1.0, res.getLowerBound(), 1e-5);
+        Assert.assertEquals(5.0, res.getUpperBound(), 1e-5);
+        System.out.println(res);
+    }
+
+    @Test
+    public void testRuleHampelWithOnes() {
+        OutlierResult res = NumericOutlierDetector.ruleHampel(new double[]{1, 1, 1}, 3);
+        Assert.assertEquals(1.0, res.getLowerBound(), 1e-5);
+        Assert.assertEquals(1.0, res.getUpperBound(), 1e-5);
+        System.out.println(res);
     }
 
     @Test
     public void testRuleBoxplot() {
-        System.out.println(NumericOutlierDetector.ruleBoxplot(new double[]{1, 1, 1, 2, 1, 2, 5}, 1.5));
+        OutlierResult res = NumericOutlierDetector.ruleBoxplot(new double[]{1, 1, 1, 2, 1, 2, 5}, 1.5);
+        Assert.assertEquals(-0.5, res.getLowerBound(), 1e-5);
+        Assert.assertEquals(3.5, res.getUpperBound(), 1e-5);
+        System.out.println(res);
     }
 
     @Test
     public void testZScore() {
-        System.out.println(NumericOutlierDetector.ruleZScore(new double[]{1, 1, 1, 2, 1, 2, 5}));
+        OutlierResult res = NumericOutlierDetector.ruleZScore(new double[]{1, 1, 1, 2, 1, 2, 5});
+        Assert.assertTrue(res.getNonOutliers().size() == 7);
+        System.out.println(res.getNonOutliers());
     }
 
     @Test
     public void testRobustZScore() {
-        System.out.println(NumericOutlierDetector.ruleRobusZScore(new double[]{1, 1, 1, 2, 1, 2, 5}));
+        OutlierResult res = NumericOutlierDetector.ruleRobusZScore(new double[]{1, 1, 1, 2, 1, 2, 5});
+        Assert.assertTrue(res.getNonOutliers().size() == 6);
+        System.out.println(res.getNonOutliers());
     }
 
     @Test
     public void testHampelLargeArray() {
-        System.out.println(NumericOutlierDetector.ruleBoxplot(new double[]{
+        OutlierResult res = NumericOutlierDetector.ruleBoxplot(new double[]{
                 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 2.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0,
                 1.0, 2.0, 2.0, 2.0, 1.0, 1.0, 1.0, 2.0, 1.0, 1.0, 2.0, 1.0, 1.0, 1.0, 2.0, 2.0, 2.0,
                 1.0, 1.0, 1.0, 2.0, 2.0, 2.0, 1.0, 2.0, 1.0, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0,
@@ -103,7 +124,10 @@ public class NumericOutlierDetectorTest {
                 1.0, 1.0, 1.0, 2.0, 1.0, 1.0, 1.0, 2.0, 2.0, 2.0, 1.0, 1.0, 1.0, 2.0, 1.0, 1.0, 1.0,
                 1.0, 1.0, 2.0, 1.0, 1.0, 3.0, 1.0, 2.0, 2.0, 1.0, 1.0, 2.0, 1.0, 2.0, 1.0, 2.0, 1.0,
                 1.0, 2.0, 1.0, 1.0, 1.0, 2.0, 1.0, 1.0, 1.0, 2.0, 1.0, 1.0, 1.0, 1.0, 1.0
-        }, 1.5));
+        }, 1.5);
+        Assert.assertEquals(-0.5, res.getLowerBound(), 1e-5);
+        Assert.assertEquals(3.5, res.getUpperBound(), 1e-5);
+        System.out.println(res);
     }
 
 }
