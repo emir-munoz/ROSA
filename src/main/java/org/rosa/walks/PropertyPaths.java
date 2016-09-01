@@ -1,4 +1,4 @@
-package org.rosa.features;
+package org.rosa.walks;
 
 import com.google.common.collect.Lists;
 import org.eclipse.rdf4j.model.Value;
