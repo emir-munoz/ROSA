@@ -3,13 +3,12 @@ package org.rosa.util;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.File;
-import java.io.IOException;
-import java.io.RandomAccessFile;
+import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.LinkOption;
 import java.nio.file.Path;
 import java.util.zip.GZIPInputStream;
+import java.util.zip.GZIPOutputStream;
 
 /**
  * @author Emir Munoz
@@ -85,5 +84,21 @@ public class FileSystem {
         return magic == GZIPInputStream.GZIP_MAGIC;
     }
 
+    public static BufferedWriter createWriter(final String filename, final String encoding) {
+        try {
+            // false will create a new file if already exists
+            FileOutputStream fos = new FileOutputStream(filename, false);
+            GZIPOutputStream gzip = new GZIPOutputStream(fos);
+            return new BufferedWriter(new OutputStreamWriter(gzip, encoding));
+        } catch (FileNotFoundException e) {
+            _log.error("File not found");
+            e.printStackTrace();
+        } catch (IOException e) {
+            _log.error("Error writing in file");
+            e.printStackTrace();
+        }
+
+        return null;
+    }
 
 }
