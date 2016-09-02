@@ -1,18 +1,26 @@
 package org.rosa.walks;
 
 import com.google.common.collect.Lists;
+import com.opencsv.CSVReader;
 import org.eclipse.rdf4j.repository.Repository;
 import org.rosa.rdf.RdfUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.IOException;
+import java.text.MessageFormat;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
 /**
- * Extraction of random walks from a SPARQL endpoint for a given set of entity URIs.
+ * Extraction of random walks from a SPARQL endpoint for a given set of entity URIs. The two types of walks are:
+ * <p/>
+ * - Random walks of type property -> resource -> property -> ... -> resource - Random walks of type property ->
+ * class(resource) -> property -> ... -> class(resource)
  *
  * @author Emir Munoz
  * @version 0.0.3
@@ -22,27 +30,53 @@ public class RandomWalks {
 
     /** class logger */
     private static final transient Logger _log = LoggerFactory.getLogger(RandomWalks.class.getSimpleName());
-    private static int threads;
-    private static int depth;
-    private static int walks;
+    private String entitiesFile;
+    private int threads;
+    private int depth;
+    private int walks;
+    private String prefixes = "PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>\n"
+            + "PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>\n"
+            + "PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>\n"
+            + "PREFIX owl: <http://www.w3.org/2002/07/owl#>\n"
+            + "PREFIX dcat: <http://www.w3.org/ns/dcat#>\n"
+            + "PREFIX dct: <http://purl.org/dc/terms/>\n";
 
     /**
      * Main method.
      */
     public static void main(String... args) {
         RandomWalks rwalks = new RandomWalks();
-        threads = Integer.valueOf(args[0]);
-        depth = Integer.valueOf(args[1]);
-        walks = Integer.valueOf(args[2]);
-        rwalks.init();
+        rwalks.init(args);
     }
 
     /**
      * Initialization.
      */
-    private void init() {
+    private void init(String... args) {
+        entitiesFile = args[0];
+        threads = Integer.valueOf(args[1]);
+        depth = Integer.valueOf(args[2]);
+        walks = Integer.valueOf(args[3]);
+
+        List<String> entities = Lists.newArrayList();
+        try {
+            CSVReader reader = new CSVReader(new FileReader(this.entitiesFile));
+            String[] nextLine;
+            while ((nextLine = reader.readNext()) != null) {
+                entities.add(nextLine[0]);
+            }
+        } catch (FileNotFoundException e) {
+            _log.error("Cannot find input file '{}'. Closing application.", this.entitiesFile);
+            e.printStackTrace();
+            System.exit(0);
+        } catch (IOException e) {
+            _log.error("Error while reading input file '{}'. Closing application.", this.entitiesFile);
+            e.printStackTrace();
+            System.exit(0);
+        }
+
         Repository repository1 = RdfUtils.connectToSparqlRepository("http://140.203.155.53:3030/bio2rdf-0.2/sparql");
-        this.getRandomWalksOfDepth(depth, walks, repository1);
+        this.getRandomWalksOfDepth(entities, depth, walks, repository1);
     }
 
     /**
@@ -55,16 +89,9 @@ public class RandomWalks {
      * @param repo
      *         Reference repository.
      */
-    public void getRandomWalksOfDepth(final int depth, final int nbWalks, Repository repo) {
+    public void getRandomWalksOfDepth(final List<String> entities, final int depth, final int nbWalks,
+                                      Repository repo) {
         _log.info("Querying dataset to get random walks of depth {}", depth);
-        List<String> entities = Lists.newArrayList();
-        entities.add("http://bio2rdf.org/drugbank:DB01600");
-        entities.add("http://bio2rdf.org/drugbank:DB00208");
-        entities.add("http://bio2rdf.org/drugbank:DB00753");
-        entities.add("http://bio2rdf.org/drugbank:DB00632");
-        entities.add("http://bio2rdf.org/drugbank:DB00305");
-        entities.add("http://bio2rdf.org/drugbank:DB00644");
-        entities.add("http://bio2rdf.org/drugbank:DB00531");
 
         // start a pool of threads and assign an entity to each one
         // ThreadPoolExecutor pool = new ThreadPoolExecutor(threads, threads, 0, TimeUnit.SECONDS,
@@ -108,11 +135,11 @@ public class RandomWalks {
      * @return A SPARQL query.
      */
     public String generateRandomWalksQuery(final String rootEntity, final int depth, final int nbWalks) {
-        String queryString = "PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>\n"
+        String queryString = "%s\n"
                 + "SELECT DISTINCT %s\n"
                 + "WHERE {\n"
-                + "%s"
-                + "  FILTER (isLiteral(?target%s) || isIRI(?target%s))\n";
+                + "%s" // triplePatterns
+                + "%s"; // filters
         if (nbWalks > 0) {
             queryString += "  BIND(RAND() AS ?sortKey)\n"
                     + "}\n"
@@ -121,9 +148,9 @@ public class RandomWalks {
         } else {
             queryString += "}\n";
         }
-        // build string of variables
         String variables = "";
         String triplePatterns = "";
+        String filters = "";
         for (int i = 0; i < depth; i++) {
             variables += "?p" + i + " ?target" + i + " ";
             if (i == 0) {
@@ -135,7 +162,9 @@ public class RandomWalks {
                         + "  FILTER (?target" + (i - 1) + " != ?target" + i + ")\n";
             }
         }
-        queryString = String.format(queryString, variables, triplePatterns, depth - 1, depth - 1, nbWalks);
+        filters = "  FILTER (isLiteral(?target{0}) || isIRI(?target{0}))\n";
+        filters = MessageFormat.format(filters, depth - 1);
+        queryString = String.format(queryString, prefixes, variables, triplePatterns, filters, nbWalks);
 
         return queryString;
     }
@@ -153,11 +182,11 @@ public class RandomWalks {
      * @return A SPARQL query.
      */
     public String generateClassPathQuery(final String rootEntity, final int depth, final int nbWalks) {
-        String queryString = "PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>\n"
-                + "SELECT DISTINCT %s\n"
+        String queryString = "%s"
+                + "SELECT DISTINCT%s\n"
                 + "WHERE {\n"
-                + "%s"
-                + "  FILTER (isLiteral(?target%s) || isIRI(?target%s))\n";
+                + "%s" // triplePatterns
+                + "%s"; // filters
         if (nbWalks > 0) {
             queryString += "  BIND(RAND() AS ?sortKey)\n"
                     + "}\n"
@@ -166,13 +195,13 @@ public class RandomWalks {
         } else {
             queryString += "}\n";
         }
-        // build string of variables
         String variables = "";
         String triplePatterns = "";
+        String filters = "";
         for (int i = 0; i < depth; i++) {
-            variables += "?p" + i + " ?class" + i + " ";
+            variables += " ?p" + i + " ?class" + i;
             if (i == 0) {
-                triplePatterns += "  $ENTITY$ ?p" + i + " ?target" + i + " .\n"
+                triplePatterns += "  <" + rootEntity + "> ?p" + i + " ?target" + i + " .\n"
                         + "  OPTIONAL { ?target" + i + " rdf:type ?class" + i + " }\n";
                 //                        + "    FILTER (?p" + i + " != rdf:type)\n";
             } else {
@@ -182,7 +211,12 @@ public class RandomWalks {
                         + "  FILTER (?target" + (i - 1) + " != ?target" + i + ")\n";
             }
         }
-        queryString = String.format(queryString, variables, triplePatterns, depth - 1, depth - 1, nbWalks);
+        // here we add a 1 to decide the value of the last class with COALESCE
+        variables += "1 ?target" + (depth - 1) + " ";
+        filters += "  FILTER (isLiteral(?target{0}) || isIRI(?target{0}))\n"
+                + "  BIND(COALESCE(?class{0}, datatype(?target{0})) as ?class{0}1)\n";
+        filters = MessageFormat.format(filters, depth - 1);
+        queryString = String.format(queryString, prefixes, variables, triplePatterns, filters, nbWalks);
 
         return queryString;
     }
