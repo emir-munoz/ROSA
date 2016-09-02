@@ -36,7 +36,7 @@ public class RandomWalksTest {
 
     @Test
     public void testClassWalkQuery() {
-        String query = rw.generateClassPathQuery("http://something", 3, 500);
+        String query = rw.generateClassPathQuery("http://something", 4, 500);
         Assert.assertNotNull(query);
         System.out.println(query);
     }

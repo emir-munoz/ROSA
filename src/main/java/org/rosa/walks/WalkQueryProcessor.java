@@ -14,6 +14,10 @@ import org.slf4j.LoggerFactory;
 import java.util.List;
 
 /**
+ * Query processor for walks as a thread. It returns the found walks for a given entity.
+ *
+ * See also: {@link RandomWalks} and {@link WalksWriter}
+ *
  * @author Emir Munoz
  * @version 0.0.2
  * @since 31/08/2016
@@ -65,10 +69,10 @@ public class WalkQueryProcessor implements Runnable {
                         aProp = bindingSet.getValue("p" + i);
                         aTarget = bindingSet.getValue("target" + i);
                         // if (aTarget != null) {
-                        walk += "<" + aProp.stringValue() + "> -> <" + aTarget.stringValue() + ">";
+                        walk += "<" + aProp.stringValue() + "> --> <" + aTarget.stringValue() + ">";
                         // if this property is not the last one, add a slash
                         if (i + 1 < this.depth) {
-                            walk += " -> ";
+                            walk += " --> ";
                         }
                     }
                     walksList.add(walk);

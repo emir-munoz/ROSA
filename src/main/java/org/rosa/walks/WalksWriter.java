@@ -116,7 +116,7 @@ public class WalksWriter {
                 _log.error("Error closing the walks writer");
                 e.printStackTrace();
             }
-            String nextFilename = this.filename.replace(".txt.gz", "-" + (++filesCounter) + ".txt.gz");
+            String nextFilename = this.filename.replace(".txt.gz", "-" + (filesCounter++) + ".txt.gz");
             _log.info("Creating output file '{}'", nextFilename);
             writer = FileSystem.createWriter(nextFilename, this.encoding);
         }
