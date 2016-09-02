@@ -154,6 +154,11 @@
             <artifactId>commons-logging</artifactId>
             <version>1.2</version>
         </dependency>
+        <dependency>
+            <groupId>com.opencsv</groupId>
+            <artifactId>opencsv</artifactId>
+            <version>3.8</version>
+        </dependency>
         <!-- RDF kernels -->
         <dependency>
             <groupId>data2semantics</groupId>
@@ -196,6 +201,7 @@
     </dependencies>
 
     <build>
+        <finalName>ROSA/ROSA-${project.version}</finalName>
         <pluginManagement>
             <plugins>
                 <plugin>
@@ -261,7 +267,6 @@
                             <Class-Path>.</Class-Path>
                         </manifestEntries>
                     </archive>
-                    <finalName>ROSA/ROSA-${project.version}</finalName>
                 </configuration>
             </plugin>
         </plugins>
