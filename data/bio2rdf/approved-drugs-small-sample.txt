@@ -1,0 +1,7 @@
+http://bio2rdf.org/drugbank:DB01600
+http://bio2rdf.org/drugbank:DB00208
+http://bio2rdf.org/drugbank:DB00753
+http://bio2rdf.org/drugbank:DB00632
+http://bio2rdf.org/drugbank:DB00305
+http://bio2rdf.org/drugbank:DB00644
+http://bio2rdf.org/drugbank:DB00531
