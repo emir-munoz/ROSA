@@ -1,5 +1,7 @@
 package org.rosa.model.graminf;
 
+import java.util.Objects;
+
 /**
  * @author Emir Munoz
  * @version 0.0.1
@@ -96,10 +98,11 @@ public class BinaryRule {
     }
 
     public String toStringShort() {
+        String anyChild = Objects.equals(rightChild, "") ? "Any" : rightChild;
         if (range != null) {
-            return "(" + leftChild + ":::" + rightChild + ") " + range;
+            return "(" + leftChild + ":::" + anyChild + ") " + range;
         } else {
-            return leftChild + ":::" + rightChild;
+            return leftChild + ":::" + anyChild;
         }
     }
 
