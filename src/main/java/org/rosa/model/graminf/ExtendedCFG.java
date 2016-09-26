@@ -3,10 +3,8 @@ package org.rosa.model.graminf;
 import com.beust.jcommander.internal.Lists;
 import com.beust.jcommander.internal.Maps;
 import com.beust.jcommander.internal.Sets;
-import com.google.common.base.Joiner;
 import org.rosa.util.CollectionUtils;
 
-import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -43,10 +41,6 @@ public class ExtendedCFG {
 
     public List<UnaryRule> getUnaryRules() {
         return unaryRules;
-    }
-
-    public void setUnaryRules(List<UnaryRule> unaryRules) {
-        this.unaryRules = unaryRules;
     }
 
     public Set<String> getStates() {
@@ -99,16 +93,20 @@ public class ExtendedCFG {
         //        binaryRules.sort((r1, r2) -> r1.compareTo(r2));
         //        unaryRules.forEach(rule -> sb.append(rule).append("\n"));
         //        binaryRules.forEach(rule -> sb.append(rule).append("\n"));
-//        unaryRulesByParent.entrySet().forEach(rule -> sb.append(rule).append("\n"));
-//        binaryRulesByParent.entrySet().forEach(rule -> sb.append(rule).append("\n"));
+        //        unaryRulesByParent.entrySet().forEach(rule -> sb.append(rule).append("\n"));
+        //        binaryRulesByParent.entrySet().forEach(rule -> sb.append(rule).append("\n"));
         unaryRulesByParent.forEach((head, tail) -> {
             sb.append(head).append(" -> ");
+            // Set<UnaryRule> tailSet = Sets.newHashSet();
+            // tailSet.addAll(tail);
             sb.append(tail.stream().map(UnaryRule::toStringShort)
                     .collect(Collectors.joining(" | ")));
             sb.append("\n");
         });
         binaryRulesByParent.forEach((head, tail) -> {
             sb.append(head).append(" -> ");
+            // Set<BinaryRule> tailSet = Sets.newHashSet();
+            // tailSet.addAll(tail);
             sb.append(tail.stream().map(BinaryRule::toStringShort)
                     .collect(Collectors.joining(" | ")));
             sb.append("\n");
