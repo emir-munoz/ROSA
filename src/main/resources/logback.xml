@@ -20,7 +20,8 @@
         <withJansi>true</withJansi>
         <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
             <Pattern>
-                [%-5p] %d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-20(\(%logger{0}\)) - %msg%n
+                <!-- [%-5p] %d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-20(\(%logger{0}\)) - %msg%n -->
+                %green([%-5p]) %d{yyyy-MM-dd HH:mm:ss.SSS} %blue([){}%cyan(%thread){}%blue(]) %-20(\(%logger{0}\)) - %msg%n
             </Pattern>
         </encoder>
     </appender>
