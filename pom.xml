@@ -36,7 +36,7 @@
         <maven.compiler.target>1.8</maven.compiler.target>
         <junit.version>4.11</junit.version>
         <scala.version>2.11.5</scala.version>
-        <spark.version>1.5.1</spark.version>
+        <spark.version>2.2.0</spark.version>
         <log4j.version>2.3</log4j.version>
         <guava.version>18.0</guava.version>
         <rdf4j.version>2.0M3</rdf4j.version>
